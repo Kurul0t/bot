@@ -9,7 +9,19 @@ import asyncio
 from datetime import datetime, timedelta
 import os
 from aiogram.client.bot import DefaultBotProperties
+
+import threading
+from flask import Flask
+
 from configer import config
+
+app = Flask(__name__)
+
+
+@app.route("/")
+def home():
+    return "Бот працює!"
+
 
 note_stat = {}
 # Налаштування доступу до Google Sheets
@@ -185,9 +197,16 @@ async def check_periodically(bot: Bot):
         await asyncio.sleep(60)
 
 
+async def run_flask():
+    port = int(os.environ.get("PORT", 10000))
+    loop = asyncio.get_running_loop()
+    await loop.run_in_executor(None, lambda: app.run(host="0.0.0.0", port=port))
+
+
 async def main():
     await on_startup()
     asyncio.create_task(check_periodically(bot))
+    asyncio.create_task(run_flask())
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
