@@ -16,7 +16,7 @@ note_stat = {}
 SCOPE = ["https://spreadsheets.google.com/feeds",
          "https://www.googleapis.com/auth/drive"]
 # Вкажіть шлях до вашого JSON файлу
-SERVICE_ACCOUNT_FILE = 'C:/Users/Acer/source/repos/Python/Bots/perepilochka-737ab50d12b5.json'
+SERVICE_ACCOUNT_FILE = 'perepilochka-737ab50d12b5.json'
 
 
 print(os.path.abspath(SERVICE_ACCOUNT_FILE))
