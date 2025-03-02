@@ -204,6 +204,7 @@ async def run_flask():
 
 
 async def main():
+    await bot.delete_webhook(drop_pending_updates=True)
     await on_startup()
     asyncio.create_task(check_periodically(bot))
     asyncio.create_task(run_flask())
