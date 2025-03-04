@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 import os
 from aiogram.client.bot import DefaultBotProperties
 
-
+from aiohttp import web, ClientSession
 from configer import config
 
 
@@ -45,6 +45,16 @@ dp = Dispatcher()
 # https://docs.google.com/spreadsheets/d/1lCdMi8FrukmA5qNEgK7bpwEFQpgLcp-qTp5DNWUsEgs/edit?usp=sharing
 
 state_day_start = {}
+
+# URL KeepAliveBot (замініть на реальний URL після деплою)
+KEEPALIVE_BOT_URL = "https://your-keepalive-bot.onrender.com/ping"
+
+# Додаємо обробник для /ping
+
+
+@dp.message(Command("ping"))
+async def handle_ping(message: types.Message):
+    pass  # Просто ігноруємо
 
 
 async def add_date(callback: types.CallbackQuery):
@@ -188,8 +198,45 @@ async def check_periodically(bot: Bot):
         await asyncio.sleep(60)
 
 
+# Веб-сервер для отримання пінгів
+async def handle_ping_request(request):
+    return web.Response(text="Pong")
+
+
+async def start_web_server():
+    app = web.Application()
+    app.add_routes([web.get('/ping', handle_ping_request)])  # Ендпоінт /ping
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, '0.0.0.0', 8080)  # Порт 8080 для Render
+    await site.start()
+    print("Веб-сервер основного бота запущено на порту 8080")
+
+# Функція для надсилання пінгів до KeepAliveBot
+
+
+async def send_keepalive_to_keepalivebot():
+    async with ClientSession() as session:
+        while True:
+            try:
+                async with session.get(KEEPALIVE_BOT_URL) as response:
+                    if response.status == 200:
+                        print(f"Основний бот надіслав пінг до KeepAliveBot: {await response.text()}")
+                    else:
+                        print(
+                            f"Помилка пінгу до KeepAliveBot: статус {response.status}")
+            except Exception as e:
+                print(f"Помилка при надсиланні пінгу до KeepAliveBot: {e}")
+
+            await asyncio.sleep(600)  # Надсилаємо кожні 10 хвилин
+
+
 async def main():
     await on_startup()
+    # Запускаємо веб-сервер, пінгування та polling паралельно
+    asyncio.create_task(start_web_server())
+    # Додаємо пінгування KeepAliveBot
+    asyncio.create_task(send_keepalive_to_keepalivebot())
     asyncio.create_task(check_periodically(bot))
     await dp.start_polling(bot)
 
