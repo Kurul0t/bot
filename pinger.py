@@ -1,32 +1,50 @@
-
 import asyncio
-import os
-from aiogram import Bot
-from aiogram.client.bot import DefaultBotProperties
+import aiohttp
+from aiohttp import web, ClientSession
 
-# Токен другого бота від @BotFather
-PING_BOT_TOKEN = os.environ.get("PING_BOT_TOKEN")  # Заміни на реальний токен
-CHAT_ID = 1030040998  # Твій Telegram ID або ID чату, де працює основний бот
+# URL основного бота (замініть на реальний URL після деплою)
+MAIN_BOT_URL = "https://your-main-bot.onrender.com/ping"
 
-# Ініціалізація пінг-бота
-ping_bot = Bot(PING_BOT_TOKEN, default=DefaultBotProperties(parse_mode='HTML'))
-
-# Функція для надсилання пінгу
+# Веб-сервер для отримання пінгів
 
 
-async def keep_alive():
-    while True:
-        await ping_bot.send_message(CHAT_ID, "Пінг! Я тримаю основного бота активним.")
-        print("Пінг надіслано!")
-        await asyncio.sleep(300)  # 5 хвилин (300 секунд)
+async def handle_ping_request(request):
+    return web.Response(text="Pong")
 
-# Основна функція
+
+async def start_web_server():
+    app = web.Application()
+    app.add_routes([web.get('/ping', handle_ping_request)])  # Ендпоінт /ping
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, '0.0.0.0', 8080)  # Порт 8080 для Render
+    await site.start()
+    print("Веб-сервер KeepAliveBot запущено на порту 8080")
+
+# Функція для надсилання пінгів до основного бота
+
+
+async def send_keepalive_request():
+    async with ClientSession() as session:
+        while True:
+            try:
+                async with session.get(MAIN_BOT_URL) as response:
+                    if response.status == 200:
+                        print(f"KeepAliveBot надіслав пінг до основного бота: {await response.text()}")
+                    else:
+                        print(
+                            f"Помилка пінгу до основного бота: статус {response.status}")
+            except Exception as e:
+                print(f"Помилка при надсиланні запиту до основного бота: {e}")
+
+            await asyncio.sleep(600)  # Надсилаємо кожні 10 хвилин
 
 
 async def main():
-    # Видаляємо Webhook, якщо був
-    await ping_bot.delete_webhook(drop_pending_updates=True)
-    await keep_alive()
+    print("KeepAliveBot запущено!")
+    # Запускаємо веб-сервер і пінгування паралельно
+    asyncio.create_task(start_web_server())
+    await send_keepalive_request()
 
 if __name__ == "__main__":
     asyncio.run(main())
