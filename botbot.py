@@ -10,17 +10,12 @@ from datetime import datetime, timedelta
 import os
 from aiogram.client.bot import DefaultBotProperties
 
-from aiohttp import web, ClientSession
-from configer import config
-
-
 note_stat = {}
 # Налаштування доступу до Google Sheets
 SCOPE = ["https://spreadsheets.google.com/feeds",
          "https://www.googleapis.com/auth/drive"]
 # Вкажіть шлях до вашого JSON файлу
 SERVICE_ACCOUNT_FILE = 'perepilochka-737ab50d12b5.json'
-
 
 print(os.path.abspath(SERVICE_ACCOUNT_FILE))
 creds = ServiceAccountCredentials.from_json_keyfile_name(
@@ -33,20 +28,17 @@ sheet = client.open_by_key('1lCdMi8FrukmA5qNEgK7bpwEFQpgLcp-qTp5DNWUsEgs')
 worksheet = sheet.get_worksheet(0)  # Відкриваємо перший аркуш
 
 # Налаштування Telegram
-# TOKEN = '7937477586:AAEzZowQ8jQpOHjebyG3wxipr83RsrhvuIw'
-# CHAT_ID = '1030040998'
-bot = Bot(config.bot_token.get_secret_value(),
-          default=DefaultBotProperties(parse_mode='HTML'))
+# Отримуємо токен із змінної середовища
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
+if not BOT_TOKEN:
+    raise ValueError("BOT_TOKEN not found in environment variables")
+
+bot = Bot(BOT_TOKEN, default=DefaultBotProperties(parse_mode='HTML'))
 dp = Dispatcher()
-# Шлях до файлу з надісланими повідомленнями
-# SENT_NOTIFICATIONS_FILE = 'sent_notifications.json'
-
-
-# https://docs.google.com/spreadsheets/d/1lCdMi8FrukmA5qNEgK7bpwEFQpgLcp-qTp5DNWUsEgs/edit?usp=sharing
 
 state_day_start = {}
 
-# URL KeepAliveBot (замініть на реальний URL після деплою)
+# URL KeepAliveBot (замініть на реальний URL після деплою, якщо потрібен)
 KEEPALIVE_BOT_URL = "https://your-keepalive-bot.onrender.com/ping"
 
 # Додаємо обробник для /ping
@@ -100,7 +92,6 @@ async def send_note(user_id: int, message: types.Message, bot: Bot):
     date_p_17 = date_p_17.strftime("%d.%m.%Y")
     await bot.send_message(user_id, f"Орієнтовна дата вилупу: {date_p_17}")
 
-
 # Обробник натискання кнопки
 
 
@@ -113,23 +104,19 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
         t = await Arrangement()
         await bot.send_message(user_id, f"Розміщення перепелів", reply_markup=t)"""
 
-
 menu = InlineKeyboardMarkup(
     inline_keyboard=[
         [
             InlineKeyboardButton(text="Запуск інкубатора",
                                  callback_data="add_date")
-
         ]
     ]
-
 )
 # кнопка розміщення перепілок у клітках
 """,
         [
             InlineKeyboardButton(text="Розміщення",
                                  callback_data="Arrngmnt")
-
         ]"""
 
 
@@ -144,8 +131,8 @@ async def reply_action(message: types.Message, bot: Bot):
 @dp.message(lambda message: message.content_type == ContentType.TEXT)
 async def handle_text(message: Message, bot: Bot):
     user_id = message.from_user.id
-    """if user_id not in note_stat:
-        note_stat[user_id] = {}"""
+    if user_id not in note_stat:
+        note_stat[user_id] = 0
     if note_stat[user_id] == 1:
         await send_note(user_id, message, bot)
         note_stat[user_id] = 0
@@ -188,19 +175,15 @@ async def check_periodically(bot: Bot):
                     rows = worksheet.get_all_values()
                     last_row_index = len(rows)
                     worksheet.update_cell(last_row_index, 1, "*")
-
                 else:
                     print("❌ Дата не збігається.")
-
             else:
                 print("Час перевірки! Але дати немає.")
-
         await asyncio.sleep(60)
 
 
 async def main():
     await on_startup()
-
     asyncio.create_task(check_periodically(bot))
     await dp.start_polling(bot)
 
