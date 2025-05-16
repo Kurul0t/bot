@@ -9,30 +9,63 @@ import os
 import json
 import pytz
 from aiogram.client.bot import DefaultBotProperties
+import logging
 
 note_stat = {}
 UA_TZ = pytz.timezone("Europe/Kyiv")  # Український час
+
+# Налаштування логування для діагностики
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Налаштування доступу до Google Sheets
 SCOPE = ["https://spreadsheets.google.com/feeds",
          "https://www.googleapis.com/auth/drive"]
 
-'''creds_json = os.getenv("GOOGLE_CREDS_JSON")
-if not creds_json:
-    raise ValueError("GOOGLE_CREDS_JSON не знайдено")'''
+creds_path = "credentials.json"
 
-'''try:
-    creds_dict = json.loads(creds_json)
-    if isinstance(creds_dict, str):
-        creds_dict = json.loads(creds_dict)
+# Перевірка наявності файлу
+if not os.path.exists(creds_path):
+    logger.error("Файл облікових даних не знайдено: %s", creds_path)
+    raise ValueError(f"Файл облікових даних не знайдено: {creds_path}")
+
+# Зчитування JSON-файлу
+try:
+    with open(creds_path, "r") as f:
+        creds_dict = json.load(f)
+    logger.info("Файл credentials.json успішно зчитано")
+    if not isinstance(creds_dict, dict):
+        logger.error("credentials.json не є коректним словником")
+        raise ValueError("credentials.json не є коректним словником")
+    if "private_key" not in creds_dict:
+        logger.error("Поле 'private_key' відсутнє в credentials.json")
+        raise ValueError("Поле 'private_key' відсутнє в credentials.json")
+    if not creds_dict["private_key"].startswith("-----BEGIN PRIVATE KEY-----"):
+        logger.error("Поле 'private_key' не є коректним PEM-ключем")
+        raise ValueError("Поле 'private_key' не є коректним PEM-ключем")
+    logger.info("Поле private_key присутнє, перші 20 символів: %s",
+                creds_dict["private_key"][:20])
+except json.JSONDecodeError as e:
+    logger.error("Помилка при розпарсуванні credentials.json: %s", e)
+    raise ValueError(f"Помилка при розпарсуванні credentials.json: {e}")
 except Exception as e:
-    raise ValueError(f"Помилка при розпарсуванні JSON: {e}")'''
-creds_dict = json.loads(os.getenv("GOOGLE_CREDS_JSON"))
-creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
+    logger.error("Невідома помилка при обробці credentials.json: %s", e)
+    raise ValueError(f"Невідома помилка при обробці credentials.json: {e}")
+
+# Створення облікових даних
+try:
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
+    logger.info("Облікові дані успішно створено")
+except Exception as e:
+    logger.error("Помилка при створенні облікових даних: %s", e)
+    raise ValueError(f"Помилка при створенні облікових даних: {e}")
+
 client = gspread.authorize(creds)
 
-# Відкриття Google таблиці
-sheet = client.open_by_key('1lCdMi8FrukmA5qNEgK7bpwEFQpgLcp-qTp5DNWUsEgs')
+# Відкриття Google таблиціDA
+KEY = os.environ.get("KEY")
+
+sheet = client.open_by_key(KEY)
 worksheet = sheet.get_worksheet(0)
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
