@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 SCOPE = ["https://spreadsheets.google.com/feeds",
          "https://www.googleapis.com/auth/drive"]
 
-creds_path = "credentials.json"
+creds_path = "/etc/secrets/credentials.json"
 
 # Перевірка наявності файлу
 if not os.path.exists(creds_path):
