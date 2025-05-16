@@ -17,17 +17,17 @@ UA_TZ = pytz.timezone("Europe/Kyiv")  # Український час
 SCOPE = ["https://spreadsheets.google.com/feeds",
          "https://www.googleapis.com/auth/drive"]
 
-creds_json = os.getenv("GOOGLE_CREDS_JSON")
+'''creds_json = os.getenv("GOOGLE_CREDS_JSON")
 if not creds_json:
-    raise ValueError("GOOGLE_CREDS_JSON не знайдено")
+    raise ValueError("GOOGLE_CREDS_JSON не знайдено")'''
 
-try:
+'''try:
     creds_dict = json.loads(creds_json)
     if isinstance(creds_dict, str):
         creds_dict = json.loads(creds_dict)
 except Exception as e:
-    raise ValueError(f"Помилка при розпарсуванні JSON: {e}")
-
+    raise ValueError(f"Помилка при розпарсуванні JSON: {e}")'''
+creds_dict = json.loads(os.getenv("GOOGLE_CREDS_JSON"))
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
 client = gspread.authorize(creds)
 
