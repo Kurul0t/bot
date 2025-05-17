@@ -12,7 +12,7 @@ from aiogram.client.bot import DefaultBotProperties
 import logging
 
 note_stat = {}
-#UA_TZ = pytz.timezone("Europe/Kyiv")  # Український час
+# UA_TZ = pytz.timezone("Europe/Kyiv")  # Український час
 
 # Налаштування логування для діагностики
 logging.basicConfig(level=logging.INFO)
@@ -123,13 +123,14 @@ async def send_note(user_id: int, message: types.Message, bot: Bot):
     await bot.send_message(user_id, f"Орієнтовна дата вилупу: {date_p_17}")
 
 
-@dp.callback_query(lambda c: c.data in ["add_date", "Arrngmnt","check"])
+@dp.callback_query(lambda c: c.data in ["add_date", "Arrngmnt", "check"])
 async def process_button(callback: types.CallbackQuery, bot: Bot):
     user_id = callback.from_user.id
     if callback.data == "add_date":
         await add_date(callback)
     elif callback.data == "check_date":
-        await on_startup(callback)
+        last_row = state_day_start["date"]
+        await callback.answer(f"Дата закладання:{last_row[1]}\nДата вилупу:{last_row[3]}\nЗакладено,шт:{last_row[4]}")
     """elif callback.data == "Arrngmnt":
         t = await Arrangement()
         await bot.send_message(user_id, f"Розміщення перепелів", reply_markup=t)"""
@@ -160,15 +161,14 @@ async def handle_text(message: Message, bot: Bot):
         note_stat[user_id] = 0
 
 
-async def on_startup(callback: types.CallbackQuery):
+async def on_startup():
     print("Програма запущена. Виконання ініціалізації...")
     rows = worksheet.get_all_values()
-    #user_id = callback.from_user.id
+    # user_id = callback.from_user.id
     if rows:
         last_row = rows[-1]
         state_day_start["date"] = last_row[1]
         print("Останній запис:", last_row[1])
-        await callback.answer(f"Дата закладання:{last_row[1]}\nДата вилупу:{last_row[3]}\nЗакладено,шт:{last_row[4]}")
 
 
 async def check_periodically(bot: Bot):
@@ -180,7 +180,8 @@ async def check_periodically(bot: Bot):
 
         if now.hour == 12 and now.minute == 00:
             if "date" in state_day_start:
-                logger.info(f"Час перевірки! Дата старту: {state_day_start['date']}")
+                logger.info(
+                    f"Час перевірки! Дата старту: {state_day_start['date']}")
                 saved_date = datetime.strptime(
                     state_day_start["date"], "%d.%m.%Y")
                 today_str = now.strftime("%d.%m.%Y")
