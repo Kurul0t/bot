@@ -123,7 +123,7 @@ async def send_note(user_id: int, message: types.Message, bot: Bot):
     await bot.send_message(user_id, f"Орієнтовна дата вилупу: {date_p_17}")
 
 
-@dp.callback_query(lambda c: c.data in ["add_date", "Arrngmnt", "check"])
+@dp.callback_query(lambda c: c.data in ["add_date", "Arrngmnt", "check_date"])
 async def process_button(callback: types.CallbackQuery, bot: Bot):
     user_id = callback.from_user.id
     if callback.data == "add_date":
