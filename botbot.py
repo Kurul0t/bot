@@ -132,7 +132,8 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
         rows = worksheet.get_all_values()
         if rows:
             last_row = rows[-1]
-            await callback.answer(f"Дата закладання:{last_row[1]}\nДата вилупу:{last_row[3]}\nЗакладено,шт:{last_row[4]}")
+            logger.info("check_date")
+            await callback.message.answer(f"Дата закладання:{last_row[1]}\nДата вилупу:{last_row[3]}\nЗакладено,шт:{last_row[4]}")
     """elif callback.data == "Arrngmnt":
         t = await Arrangement()
         await bot.send_message(user_id, f"Розміщення перепелів", reply_markup=t)"""
