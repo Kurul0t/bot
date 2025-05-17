@@ -12,7 +12,7 @@ from aiogram.client.bot import DefaultBotProperties
 import logging
 
 note_stat = {}
-UA_TZ = pytz.timezone("Europe/Kyiv")  # Український час
+#UA_TZ = pytz.timezone("Europe/Kyiv")  # Український час
 
 # Налаштування логування для діагностики
 logging.basicConfig(level=logging.INFO)
@@ -88,7 +88,7 @@ async def add_date(callback: types.CallbackQuery):
     rows = worksheet.get_all_values()
     user_id = callback.from_user.id
     if rows and rows[-1][0] == '*':
-        today_str = datetime.now(UA_TZ).strftime("%d.%m.%Y")
+        today_str = datetime.now().strftime("%d.%m.%Y")
         state_day_start["date"] = today_str
         today = datetime.strptime(today_str, "%d.%m.%Y")
         date_p_17 = (today + timedelta(days=17)).strftime("%d.%m.%Y")
@@ -116,18 +116,20 @@ async def send_note(user_id: int, message: types.Message, bot: Bot):
     czus = message.text
     last_row_index = len(rows)
     worksheet.update_cell(last_row_index, 5, czus)
-    today_str = datetime.now(UA_TZ).strftime("%d.%m.%Y")
+    today_str = datetime.now().strftime("%d.%m.%Y")
     state_day_start["date"] = today_str
     today = datetime.strptime(today_str, "%d.%m.%Y")
     date_p_17 = (today + timedelta(days=17)).strftime("%d.%m.%Y")
     await bot.send_message(user_id, f"Орієнтовна дата вилупу: {date_p_17}")
 
 
-@dp.callback_query(lambda c: c.data in ["add_date", "Arrngmnt"])
+@dp.callback_query(lambda c: c.data in ["add_date", "Arrngmnt","check"])
 async def process_button(callback: types.CallbackQuery, bot: Bot):
     user_id = callback.from_user.id
     if callback.data == "add_date":
         await add_date(callback)
+    elif callback.data == "check_date":
+        await on_startup(callback)
     """elif callback.data == "Arrngmnt":
         t = await Arrangement()
         await bot.send_message(user_id, f"Розміщення перепелів", reply_markup=t)"""
@@ -135,7 +137,9 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
 menu = InlineKeyboardMarkup(
     inline_keyboard=[
         [InlineKeyboardButton(text="Запуск інкубатора",
-                              callback_data="add_date")]
+                              callback_data="add_date")],
+        [InlineKeyboardButton(text="Відстеження прогресу",
+                              callback_data="check_date")]
     ]
 )
 
@@ -156,25 +160,27 @@ async def handle_text(message: Message, bot: Bot):
         note_stat[user_id] = 0
 
 
-async def on_startup():
+async def on_startup(callback: types.CallbackQuery):
     print("Програма запущена. Виконання ініціалізації...")
     rows = worksheet.get_all_values()
+    #user_id = callback.from_user.id
     if rows:
         last_row = rows[-1]
         state_day_start["date"] = last_row[1]
         print("Останній запис:", last_row[1])
+        await callback.answer(f"Дата закладання:{last_row[1]}\nДата вилупу:{last_row[3]}\nЗакладено,шт:{last_row[4]}")
 
 
 async def check_periodically(bot: Bot):
     users = {1: 1030040998}
     while True:
-        now = datetime.now(UA_TZ)
+        now = datetime.now()
 
         # відправка повідомлень за день до в обід
 
         if now.hour == 12 and now.minute == 00:
             if "date" in state_day_start:
-                print(f"Час перевірки! Дата старту: {state_day_start['date']}")
+                logger.info(f"Час перевірки! Дата старту: {state_day_start['date']}")
                 saved_date = datetime.strptime(
                     state_day_start["date"], "%d.%m.%Y")
                 today_str = now.strftime("%d.%m.%Y")
@@ -263,7 +269,7 @@ async def check_periodically(bot: Bot):
             else:
                 print("Час перевірки! Але дати немає.")
 
-        await asyncio.sleep(60)
+        await asyncio.sleep(30)
 
 
 async def main():
