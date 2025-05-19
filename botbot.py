@@ -154,7 +154,7 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
             return
         line_1 = "-" * delta_day_1 if delta_day_1 >= 0 else ""
         line_2 = "-" * delta_day_2 if delta_day_2 >= 0 else ""
-        message = f"Вилуплення вже відбулося!" if delta_day_2 < 0 else f"📍{line_1}🥚{line_2}🐣\nДнів до вилупу: {delta_day_2}"
+        message = f"Вилуп впродож сьогоднішнього дня!" if delta_day_2 < 0 else f"📍{line_1}🥚{line_2}🐣\nДнів до вилупу: {delta_day_2}"
         await callback.message.answer(
             f"Дата закладання: {last_row[1]}\n"
             f"Дата вилупу: {last_row[3]}\n"
