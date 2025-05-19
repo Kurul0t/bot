@@ -123,7 +123,7 @@ async def send_note(user_id: int, message: types.Message, bot: Bot):
     await bot.send_message(user_id, f"Орієнтовна дата вилупу: {date_p_17}")
 
 
-async def days_until_date(launch_date_str, target_date_str, date_format="%Y.%m.%d"):
+async def days_until_date(launch_date_str, target_date_str, date_format="%d.%m.%Y"):
     today = datetime.now().date()
     start_date = datetime.strptime(launch_date_str, date_format).date()
     target_date = datetime.strptime(target_date_str, date_format).date()
