@@ -127,11 +127,13 @@ async def days_until_date(launch_date_str, target_date_str, date_format="%Y.%m.%
     today = datetime.now().date()
     start_date = datetime.strptime(launch_date_str, date_format).date()
     target_date = datetime.strptime(target_date_str, date_format).date()
-    delta_1 = today-start_date
-    delta_1 -= 1
-    delta_2 = target_date-today
-    delta_2 -= 1
-    return delta_1.days, delta_2.days
+    delta_1 = today - start_date
+    delta_2 = target_date - today
+    # Не враховуємо сьогодні
+    days_1 = delta_1.days - (1 if delta_1.days >= 0 else 0)
+    # Не враховуємо сьогодні
+    days_2 = delta_2.days - (1 if delta_2.days >= 0 else 0)
+    return days_1, days_2
 
 
 @dp.callback_query(lambda c: c.data in ["add_date", "Arrngmnt", "check_date"])
@@ -141,13 +143,24 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
         await add_date(callback)
     elif callback.data == "check_date":
         rows = worksheet.get_all_values()
-        if rows:
-            last_row = rows[-1]
-            logger.info("check_date")
-            delta_day_1, delta_day_2 = await days_until_date(last_row[1], last_row[3])
-            line_1 = "-" * delta_day_1
-            line_2 = "-" * delta_day_2
-            await callback.message.answer(f"Дата закладання:{last_row[1]}\nДата вилупу:{last_row[3]}\nЗакладено,шт:{last_row[4]}\n\n📍{line_1}🥚{line_2}🐣\nДнів до вилупу: {delta_day_2}")
+        if not rows or len(rows[-1]) < 5 or not all([rows[-1][1], rows[-1][3], rows[-1][4]]):
+            await callback.message.answer("Помилка: Недостатньо даних у таблиці.")
+            return
+        last_row = rows[-1]
+        logger.info("check_date")
+        delta_day_1, delta_day_2 = await days_until_date(last_row[1], last_row[3])
+        if isinstance(delta_day_2, str):
+            await callback.message.answer(delta_day_2)
+            return
+        line_1 = "-" * delta_day_1 if delta_day_1 >= 0 else ""
+        line_2 = "-" * delta_day_2 if delta_day_2 >= 0 else ""
+        message = f"Вилуплення вже відбулося!" if delta_day_2 < 0 else f"📍{line_1}🥚{line_2}🐣\nДнів до вилупу: {delta_day_2}"
+        await callback.message.answer(
+            f"Дата закладання: {last_row[1]}\n"
+            f"Дата вилупу: {last_row[3]}\n"
+            f"Закладено, шт: {last_row[4]}\n\n"
+            f"{message}"
+        )
     """elif callback.data == "Arrngmnt":
         t = await Arrangement()
         await bot.send_message(user_id, f"Розміщення перепелів", reply_markup=t)"""
@@ -185,7 +198,7 @@ async def on_startup():
     if rows:
         last_row = rows[-1]
         state_day_start["date"] = last_row[1]
-        print("Останній запис:", last_row[1])
+        logger.info("Останній запис:", last_row[1])
 
 
 async def check_periodically(bot: Bot):
