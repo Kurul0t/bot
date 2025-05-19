@@ -123,6 +123,17 @@ async def send_note(user_id: int, message: types.Message, bot: Bot):
     await bot.send_message(user_id, f"Орієнтовна дата вилупу: {date_p_17}")
 
 
+async def days_until_date(launch_date_str, target_date_str, date_format="%Y.%m.%d"):
+    today = datetime.now().date()
+    start_date = datetime.strptime(launch_date_str, date_format).date()
+    target_date = datetime.strptime(target_date_str, date_format).date()
+    delta_1 = today-start_date
+    delta_1 -= 1
+    delta_2 = target_date-today
+    delta_2 -= 1
+    return delta_1.days, delta_2.days
+
+
 @dp.callback_query(lambda c: c.data in ["add_date", "Arrngmnt", "check_date"])
 async def process_button(callback: types.CallbackQuery, bot: Bot):
     user_id = callback.from_user.id
@@ -133,7 +144,10 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
         if rows:
             last_row = rows[-1]
             logger.info("check_date")
-            await callback.message.answer(f"Дата закладання:{last_row[1]}\nДата вилупу:{last_row[3]}\nЗакладено,шт:{last_row[4]}")
+            delta_day_1, delta_day_2 = await days_until_date(last_row[1], last_row[3])
+            line_1 = "-" * delta_day_1
+            line_2 = "-" * delta_day_2
+            await callback.message.answer(f"Дата закладання:{last_row[1]}\nДата вилупу:{last_row[3]}\nЗакладено,шт:{last_row[4]}\n\n📍{line_1}🥚{line_2}🐣\nДнів до вилупу: {delta_day_2}")
     """elif callback.data == "Arrngmnt":
         t = await Arrangement()
         await bot.send_message(user_id, f"Розміщення перепелів", reply_markup=t)"""
@@ -180,41 +194,7 @@ async def check_periodically(bot: Bot):
         now = datetime.now()
 
         # відправка повідомлень за день до в обід
-
-        if now.hour == 12 and now.minute == 00:
-            if "date" in state_day_start:
-                logger.info(
-                    f"Час перевірки! Дата старту: {state_day_start['date']}")
-                saved_date = datetime.strptime(
-                    state_day_start["date"], "%d.%m.%Y")
-                today_str = now.strftime("%d.%m.%Y")
-                date_plus_8 = (saved_date + timedelta(days=9)
-                               ).strftime("%d.%m.%Y")
-                date_plus_14 = (saved_date + timedelta(days=15)
-                                ).strftime("%d.%m.%Y")
-                date_plus_17 = (saved_date + timedelta(days=18)
-                                ).strftime("%d.%m.%Y")
-
-                if date_plus_8 == today_str:
-                    print("✅ Дата збігається! Сьогодні 8-й день.")
-                    for CHAT_ID in users.values():
-                        await bot.send_message(CHAT_ID, "Сьогодні 8-й день інкубації, завтра потрібно зменшити вологу до 40% та почати провітрювати інкубатор")
-                elif date_plus_14 == today_str:
-                    print("✅ Дата збігається! Сьогодні 14-й день.")
-                    for CHAT_ID in users.values():
-                        await bot.send_message(CHAT_ID, "Сьогодні 14-й день інкубації, завтра потрібно зменшити температуру до 37.4, збільшити вологу до 75-80% та викласти яйця на дно інкубатора")
-                elif date_plus_17 == today_str:
-                    print("✅ Дата збігається! Сьогодні 17-й день.")
-                    for CHAT_ID in users.values():
-                        await bot.send_message(CHAT_ID, "Сьогодні 17-й день інкубації, скоро почнеться вилуп🥳")
-                else:
-                    print("❌ Дата не збігається.")
-            else:
-                print("Час перевірки! Але дати немає.")
-
-        # відправка повідомлення в той день зранку
-
-        elif now.hour == 8 and now.minute == 00:
+        if now.hour == 5 and now.minute == 00:
             if "date" in state_day_start:
                 print(f"Час перевірки! Дата старту: {state_day_start['date']}")
                 saved_date = datetime.strptime(
@@ -247,9 +227,42 @@ async def check_periodically(bot: Bot):
             else:
                 print("Час перевірки! Але дати немає.")
 
+        elif now.hour == 9 and now.minute == 00:
+            if "date" in state_day_start:
+                logger.info(
+                    f"Час перевірки! Дата старту: {state_day_start['date']}")
+                saved_date = datetime.strptime(
+                    state_day_start["date"], "%d.%m.%Y")
+                today_str = now.strftime("%d.%m.%Y")
+                date_plus_8 = (saved_date + timedelta(days=8)
+                               ).strftime("%d.%m.%Y")
+                date_plus_14 = (saved_date + timedelta(days=14)
+                                ).strftime("%d.%m.%Y")
+                date_plus_17 = (saved_date + timedelta(days=17)
+                                ).strftime("%d.%m.%Y")
+
+                if date_plus_8 == today_str:
+                    print("✅ Дата збігається! Сьогодні 8-й день.")
+                    for CHAT_ID in users.values():
+                        await bot.send_message(CHAT_ID, "Сьогодні 8-й день інкубації, завтра потрібно зменшити вологу до 40% та почати провітрювати інкубатор")
+                elif date_plus_14 == today_str:
+                    print("✅ Дата збігається! Сьогодні 14-й день.")
+                    for CHAT_ID in users.values():
+                        await bot.send_message(CHAT_ID, "Сьогодні 14-й день інкубації, завтра потрібно зменшити температуру до 37.4, збільшити вологу до 75-80% та викласти яйця на дно інкубатора")
+                elif date_plus_17 == today_str:
+                    print("✅ Дата збігається! Сьогодні 17-й день.")
+                    for CHAT_ID in users.values():
+                        await bot.send_message(CHAT_ID, "Сьогодні 17-й день інкубації, скоро почнеться вилуп🥳")
+                else:
+                    print("❌ Дата не збігається.")
+            else:
+                print("Час перевірки! Але дати немає.")
+
+        # відправка повідомлення в той день зранку
+
         # відправка повідомлення в той день ввечері
 
-        elif now.hour == 21 and now.minute == 00:
+        elif now.hour == 18 and now.minute == 00:
             if "date" in state_day_start:
                 print(f"Час перевірки! Дата старту: {state_day_start['date']}")
                 saved_date = datetime.strptime(
@@ -273,7 +286,7 @@ async def check_periodically(bot: Bot):
             else:
                 print("Час перевірки! Але дати немає.")
 
-        await asyncio.sleep(30)
+        await asyncio.sleep(40)
 
 
 async def main():
