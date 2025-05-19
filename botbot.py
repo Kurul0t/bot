@@ -108,6 +108,9 @@ async def start(message: types.Message):
         keyboard=[[KeyboardButton(text="Меню")]],
         resize_keyboard=True
     )
+    user_id = message.from_user.id
+    username = message.from_user.username
+    logger.info(f"Новий користувач: ID {user_id} Username {username or 'не встановлено'}")
     await message.answer('Привіт, це бот мініферми "Степова перепілка"', reply_markup=keyboard)
 
 
@@ -202,7 +205,8 @@ async def on_startup():
 
 
 async def check_periodically(bot: Bot):
-    users = {1: 1030040998}
+    #users = {1: 1030040998}
+    users = os.environ.get("USERS_ID")
     while True:
         now = datetime.now()
 
