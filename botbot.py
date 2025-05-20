@@ -4,7 +4,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeybo
 from aiogram.filters import Command
 from oauth2client.service_account import ServiceAccountCredentials
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 import json
 import pytz
@@ -12,7 +12,7 @@ from aiogram.client.bot import DefaultBotProperties
 import logging
 
 note_stat = {}
-# UA_TZ = pytz.timezone("Europe/Kyiv")  # Український час
+UA_TZ = pytz.timezone("Europe/Kyiv")  # Український час
 
 # Налаштування логування для діагностики
 logging.basicConfig(level=logging.INFO)
@@ -88,7 +88,7 @@ async def add_date(callback: types.CallbackQuery):
     rows = worksheet.get_all_values()
     user_id = callback.from_user.id
     if rows and rows[-1][0] == '*':
-        today_str = datetime.now().strftime("%d.%m.%Y")
+        today_str = datetime.now(UA_TZ).strftime("%d.%m.%Y")
         state_day_start["date"] = today_str
         today = datetime.strptime(today_str, "%d.%m.%Y")
         date_p_17 = (today + timedelta(days=17)).strftime("%d.%m.%Y")
@@ -120,7 +120,7 @@ async def send_note(user_id: int, message: types.Message, bot: Bot):
     czus = message.text
     last_row_index = len(rows)
     worksheet.update_cell(last_row_index, 5, czus)
-    today_str = datetime.now().strftime("%d.%m.%Y")
+    today_str = datetime.now(UA_TZ).strftime("%d.%m.%Y")
     state_day_start["date"] = today_str
     today = datetime.strptime(today_str, "%d.%m.%Y")
     date_p_17 = (today + timedelta(days=17)).strftime("%d.%m.%Y")
@@ -128,7 +128,7 @@ async def send_note(user_id: int, message: types.Message, bot: Bot):
 
 
 async def days_until_date(launch_date_str, target_date_str, date_format="%d.%m.%Y"):
-    today = datetime.now().date()
+    today = datetime.now(UA_TZ).date()
     start_date = datetime.strptime(launch_date_str, date_format).date()
     target_date = datetime.strptime(target_date_str, date_format).date()
     delta_1 = today - start_date
@@ -209,10 +209,10 @@ async def check_periodically(bot: Bot):
     users = {1: 1030040998, 2: 1995558338}
     # users = os.environ.get("USERS_ID")
     while True:
-        now = datetime.now()
+        now = datetime.now(UA_TZ)
         logger.info("запуск перевірки")
         # відправка повідомлень за день до в обід
-        if now.hour == 19 and now.minute == 34:
+        if now.hour == 19 and 45 <= now.minute <= 50:
             logger.info("час співпадає")
             if "date" in state_day_start:
                 logger.info("вибір дня")
