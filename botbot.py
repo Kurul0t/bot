@@ -211,7 +211,7 @@ async def check_periodically(bot: Bot):
         now = datetime.now()
 
         # відправка повідомлень за день до в обід
-        if now.hour == 5 and now.minute == 00:
+        if now.hour == 18 and now.minute == 25:
             if "date" in state_day_start:
                 print(f"Час перевірки! Дата старту: {state_day_start['date']}")
                 saved_date = datetime.strptime(
@@ -238,7 +238,7 @@ async def check_periodically(bot: Bot):
                         await bot.send_message(CHAT_ID, "Сьогодні 18-й день інкубації, день вилупу🥳")
                     rows = worksheet.get_all_values()
                     last_row_index = len(rows)
-                    worksheet.update_cell(last_row_index, 1, "*")
+                    worksheet.update_cell(last_row_index, 0, "*")
                 else:
                     print("❌ Дата не збігається.")
             else:
