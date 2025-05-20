@@ -212,7 +212,7 @@ async def check_periodically(bot: Bot):
         now = datetime.now(UA_TZ)
         logger.info("запуск перевірки")
         # відправка повідомлень за день до в обід
-        if now.hour == 19 and 45 <= now.minute <= 50:
+        if now.hour == 22 and 45 <= now.minute <= 50:
             logger.info("час співпадає")
             if "date" in state_day_start:
                 logger.info("вибір дня")
