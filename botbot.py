@@ -110,7 +110,8 @@ async def start(message: types.Message):
     )
     user_id = message.from_user.id
     username = message.from_user.username
-    logger.info(f"Новий користувач: ID {user_id} Username {username or 'не встановлено'}")
+    logger.info(
+        f"Новий користувач: ID {user_id} Username {username or 'не встановлено'}")
     await message.answer('Привіт, це бот мініферми "Степова перепілка"', reply_markup=keyboard)
 
 
@@ -206,13 +207,15 @@ async def on_startup():
 
 async def check_periodically(bot: Bot):
     users = {1: 1030040998, 2: 1995558338}
-    #users = os.environ.get("USERS_ID")
+    # users = os.environ.get("USERS_ID")
     while True:
         now = datetime.now()
-
+        logger.info("запуск перевірки")
         # відправка повідомлень за день до в обід
         if now.hour == 19 and now.minute == 15:
+            logger.info("час співпадає")
             if "date" in state_day_start:
+                logger.info("вибір дня")
                 print(f"Час перевірки! Дата старту: {state_day_start['date']}")
                 saved_date = datetime.strptime(
                     state_day_start["date"], "%d.%m.%Y")
@@ -233,6 +236,7 @@ async def check_periodically(bot: Bot):
                     for CHAT_ID in users.values():
                         await bot.send_message(CHAT_ID, "Сьогодні 15-й день інкубації, потрібно зменшити температуру до 37.4, збільшити вологу до 75-80% та викласти яйця на дно інкубатора")
                 elif date_plus_18 == today_str:
+                    logger.info("відправка")
                     print("✅ Дата збігається! Сьогодні 18-й день.")
                     for CHAT_ID in users.values():
                         await bot.send_message(CHAT_ID, "Сьогодні 18-й день інкубації, день вилупу🥳")
