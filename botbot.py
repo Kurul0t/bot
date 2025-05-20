@@ -211,7 +211,7 @@ async def check_periodically(bot: Bot):
         now = datetime.now()
 
         # відправка повідомлень за день до в обід
-        if now.hour == 19 and now.minute == 12:
+        if now.hour == 18 and now.minute == 46:
             if "date" in state_day_start:
                 print(f"Час перевірки! Дата старту: {state_day_start['date']}")
                 saved_date = datetime.strptime(
