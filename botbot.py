@@ -205,13 +205,13 @@ async def on_startup():
 
 
 async def check_periodically(bot: Bot):
-    #users = {1: 1030040998}
-    users = os.environ.get("USERS_ID")
+    users = {1: 1030040998, 2: 1995558338}
+    #users = os.environ.get("USERS_ID")
     while True:
         now = datetime.now()
 
         # відправка повідомлень за день до в обід
-        if now.hour == 18 and now.minute == 25:
+        if now.hour == 19 and now.minute == 5:
             if "date" in state_day_start:
                 print(f"Час перевірки! Дата старту: {state_day_start['date']}")
                 saved_date = datetime.strptime(
