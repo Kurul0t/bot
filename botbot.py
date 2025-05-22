@@ -94,7 +94,7 @@ async def add_date(callback: types.CallbackQuery):
         state_day_start["date"] = today_str
         today = datetime.strptime(today_str, "%d.%m.%Y")
         date_p_17 = (today + timedelta(days=17)).strftime("%d.%m.%Y")
-        worksheet.append_row([None, today_str, None, date_p_17])
+        worksheet.append_row([None, None, today_str, None, date_p_17])
         await callback.answer("✅Дата записана✅")
         await callback.message.answer("✅ Дата успішно додана в таблицю!")
         note_stat[user_id] = 1
