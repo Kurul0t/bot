@@ -221,9 +221,9 @@ async def handle_text(message: Message, bot: Bot):
         last_row_index = len(rows)
         worksheet.update_cell(last_row_index, 1, "*")
         worksheet.update_cell(last_row_index, 2, "Перервано")
-        comment = "відсутній" if message == "-" else message
+        comment = "відсутній" if message.text == "-" else message.text
         for CHAT_ID in users.values():
-            await bot.send_message(CHAT_ID, f"‼Інкубацію було перервано‼\n\nКоментар:{comment}\nХто перервав:{message.from_user.first_name}{message.from_user.last_name}")
+            await bot.send_message(CHAT_ID, f"‼Інкубацію було перервано‼\n\nКоментар:{comment}\nХто перервав:{message.from_user.first_name or ''}{message.from_user.last_name or ''}")
         note_stat[user_id] = 0
 
 
