@@ -24,6 +24,8 @@ SCOPE = ["https://spreadsheets.google.com/feeds",
 
 creds_path = "/etc/secrets/credentials.json"
 
+users = {1: 1030040998, 2: 1995558338}
+
 # Перевірка наявності файлу
 if not os.path.exists(creds_path):
     logger.error("Файл облікових даних не знайдено: %s", creds_path)
@@ -134,10 +136,10 @@ async def days_until_date(launch_date_str, target_date_str, date_format="%d.%m.%
     delta_1 = today - start_date
     delta_2 = target_date - today
     # Не враховуємо сьогодні
-    # days_1 = delta_1.days - (1 if delta_1.days >= 0 else 0)
+    days_1 = delta_1.days #- (1 if delta_1.days >= 0 else 0)
     # Не враховуємо сьогодні
-    # days_2 = delta_2.days - (1 if delta_2.days >= 0 else 0)
-    return delta_1, delta_2
+    days_2 = delta_2.days #- (1 if delta_2.days >= 0 else 0)
+    return days_1, days_2
 
 
 @dp.callback_query(lambda c: c.data in ["add_date", "Arrngmnt", "check_date", "brk", "stop_brk"])
@@ -216,6 +218,8 @@ async def handle_text(message: Message, bot: Bot):
         last_row_index = len(rows)
         worksheet.update_cell(last_row_index, 1, "*")
         worksheet.update_cell(last_row_index, 2, "Перервано")
+        for CHAT_ID in users.values():
+            await bot.send_message(CHAT_ID, "Інкубацію було скасовано")
         note_stat[user_id] = 0
 
 
@@ -230,7 +234,6 @@ async def on_startup():
 
 
 async def check_periodically(bot: Bot):
-    users = {1: 1030040998, 2: 1995558338}
     # users = os.environ.get("USERS_ID")
     while True:
         now = datetime.now(UA_TZ)
