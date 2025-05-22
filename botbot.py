@@ -212,54 +212,19 @@ async def check_periodically(bot: Bot):
         now = datetime.now(UA_TZ)
         logger.info("запуск перевірки")
         # відправка повідомлень за день до в обід
-        if now.hour == 22 and 45 <= now.minute <= 50:
-            logger.info("час співпадає")
-            if "date" in state_day_start:
-                logger.info("вибір дня")
-                print(f"Час перевірки! Дата старту: {state_day_start['date']}")
-                saved_date = datetime.strptime(
-                    state_day_start["date"], "%d.%m.%Y")
-                today_str = now.strftime("%d.%m.%Y")
-                date_plus_9 = (saved_date + timedelta(days=9)
-                               ).strftime("%d.%m.%Y")
-                date_plus_15 = (saved_date + timedelta(days=15)
-                                ).strftime("%d.%m.%Y")
-                date_plus_18 = (saved_date + timedelta(days=18)
-                                ).strftime("%d.%m.%Y")
 
-                if date_plus_9 == today_str:
-                    print("✅ Дата збігається! Сьогодні 9-й день.")
-                    for CHAT_ID in users.values():
-                        await bot.send_message(CHAT_ID, "Сьогодні 9-й день інкубації, потрібно зменшити вологу до 40% та почати провітрювати інкубатор")
-                elif date_plus_15 == today_str:
-                    print("✅ Дата збігається! Сьогодні 15-й день.")
-                    for CHAT_ID in users.values():
-                        await bot.send_message(CHAT_ID, "Сьогодні 15-й день інкубації, потрібно зменшити температуру до 37.4, збільшити вологу до 75-80% та викласти яйця на дно інкубатора")
-                elif date_plus_18 == today_str:
-                    logger.info("відправка")
-                    print("✅ Дата збігається! Сьогодні 18-й день.")
-                    for CHAT_ID in users.values():
-                        await bot.send_message(CHAT_ID, "Сьогодні 18-й день інкубації, день вилупу🥳")
-                    rows = worksheet.get_all_values()
-                    last_row_index = len(rows)
-                    worksheet.update_cell(last_row_index, 0, "*")
-                else:
-                    print("❌ Дата не збігається.")
-            else:
-                print("Час перевірки! Але дати немає.")
-
-        elif now.hour == 9 and now.minute == 00:
+        if now.hour == 12 and now.minute == 00:
             if "date" in state_day_start:
                 logger.info(
                     f"Час перевірки! Дата старту: {state_day_start['date']}")
                 saved_date = datetime.strptime(
                     state_day_start["date"], "%d.%m.%Y")
                 today_str = now.strftime("%d.%m.%Y")
-                date_plus_8 = (saved_date + timedelta(days=8)
+                date_plus_8 = (saved_date + timedelta(days=7)
                                ).strftime("%d.%m.%Y")
-                date_plus_14 = (saved_date + timedelta(days=14)
+                date_plus_14 = (saved_date + timedelta(days=13)
                                 ).strftime("%d.%m.%Y")
-                date_plus_17 = (saved_date + timedelta(days=17)
+                date_plus_17 = (saved_date + timedelta(days=16)
                                 ).strftime("%d.%m.%Y")
 
                 if date_plus_8 == today_str:
@@ -283,15 +248,15 @@ async def check_periodically(bot: Bot):
 
         # відправка повідомлення в той день ввечері
 
-        elif now.hour == 18 and now.minute == 00:
+        elif (now.hour == 8 and now.minute == 00) or (now.hour == 20 and now.minute == 00):
             if "date" in state_day_start:
                 print(f"Час перевірки! Дата старту: {state_day_start['date']}")
                 saved_date = datetime.strptime(
                     state_day_start["date"], "%d.%m.%Y")
                 today_str = now.strftime("%d.%m.%Y")
-                date_plus_9 = (saved_date + timedelta(days=9)
+                date_plus_9 = (saved_date + timedelta(days=8)
                                ).strftime("%d.%m.%Y")
-                date_plus_15 = (saved_date + timedelta(days=15)
+                date_plus_15 = (saved_date + timedelta(days=14)
                                 ).strftime("%d.%m.%Y")
 
                 if date_plus_9 == today_str:
@@ -302,6 +267,30 @@ async def check_periodically(bot: Bot):
                     print("✅ Дата збігається! Сьогодні 15-й день.")
                     for CHAT_ID in users.values():
                         await bot.send_message(CHAT_ID, "Сьогодні 15-й день інкубації, потрібно зменшити температуру до 37.4, збільшити вологу до 75-80% та викласти яйця на дно інкубатора")
+                else:
+                    print("❌ Дата не збігається.")
+            else:
+                print("Час перевірки! Але дати немає.")
+        elif now.hour == 19 and now.minute == 22:
+            logger.info("час співпадає")
+            if "date" in state_day_start:
+                logger.info("вибір дня")
+                print(f"Час перевірки! Дата старту: {state_day_start['date']}")
+                saved_date = datetime.strptime(
+                    state_day_start["date"], "%d.%m.%Y")
+                today_str = now.strftime("%d.%m.%Y")
+
+                date_plus_18 = (saved_date + timedelta(days=17)
+                                ).strftime("%d.%m.%Y")
+
+                if date_plus_18 == today_str:
+                    logger.info("відправка")
+                    print("✅ Дата збігається! Сьогодні 18-й день.")
+                    for CHAT_ID in users.values():
+                        await bot.send_message(CHAT_ID, "Сьогодні 18-й день інкубації, день вилупу🥳")
+                    rows = worksheet.get_all_values()
+                    last_row_index = len(rows)
+                    worksheet.update_cell(last_row_index, 0, "*")
                 else:
                     print("❌ Дата не збігається.")
             else:
