@@ -271,7 +271,7 @@ async def check_periodically(bot: Bot):
                     print("❌ Дата не збігається.")
             else:
                 print("Час перевірки! Але дати немає.")
-        elif now.hour == 19 and now.minute == 22:
+        elif now.hour == 19 and now.minute == 27:
             logger.info("час співпадає")
             if "date" in state_day_start:
                 logger.info("вибір дня")
@@ -290,7 +290,7 @@ async def check_periodically(bot: Bot):
                         await bot.send_message(CHAT_ID, "Сьогодні 18-й день інкубації, день вилупу🥳")
                     rows = worksheet.get_all_values()
                     last_row_index = len(rows)
-                    worksheet.update_cell(last_row_index, 0, "*")
+                    worksheet.update_cell(last_row_index, 1, "*")
                 else:
                     print("❌ Дата не збігається.")
             else:
