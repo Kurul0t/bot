@@ -119,7 +119,7 @@ async def send_note(user_id: int, message: types.Message, bot: Bot):
     rows = worksheet.get_all_values()
     czus = message.text
     last_row_index = len(rows)
-    worksheet.update_cell(last_row_index, 5, czus)
+    worksheet.update_cell(last_row_index, 6, czus)
     today_str = datetime.now(UA_TZ).strftime("%d.%m.%Y")
     state_day_start["date"] = today_str
     today = datetime.strptime(today_str, "%d.%m.%Y")
@@ -134,37 +134,55 @@ async def days_until_date(launch_date_str, target_date_str, date_format="%d.%m.%
     delta_1 = today - start_date
     delta_2 = target_date - today
     # Не враховуємо сьогодні
-    days_1 = delta_1.days - (1 if delta_1.days >= 0 else 0)
+    # days_1 = delta_1.days - (1 if delta_1.days >= 0 else 0)
     # Не враховуємо сьогодні
-    days_2 = delta_2.days - (1 if delta_2.days >= 0 else 0)
-    return days_1, days_2
+    # days_2 = delta_2.days - (1 if delta_2.days >= 0 else 0)
+    return delta_1, delta_2
 
 
-@dp.callback_query(lambda c: c.data in ["add_date", "Arrngmnt", "check_date"])
+@dp.callback_query(lambda c: c.data in ["add_date", "Arrngmnt", "check_date", "brk", "stop_brk"])
 async def process_button(callback: types.CallbackQuery, bot: Bot):
     user_id = callback.from_user.id
     if callback.data == "add_date":
         await add_date(callback)
     elif callback.data == "check_date":
         rows = worksheet.get_all_values()
-        if not rows or len(rows[-1]) < 5 or not all([rows[-1][1], rows[-1][3], rows[-1][4]]):
+        """if not rows or len(rows[-1]) < 5 or not all([rows[-1][1], rows[-1][3], rows[-1][4]]):
             await callback.message.answer("Помилка: Недостатньо даних у таблиці.")
-            return
+            return"""
         last_row = rows[-1]
         logger.info("check_date")
-        delta_day_1, delta_day_2 = await days_until_date(last_row[1], last_row[3])
+        delta_day_1, delta_day_2 = await days_until_date(last_row[2], last_row[4])
         if isinstance(delta_day_2, str):
             await callback.message.answer(delta_day_2)
             return
         line_1 = "-" * delta_day_1 if delta_day_1 >= 0 else ""
         line_2 = "-" * delta_day_2 if delta_day_2 >= 0 else ""
         message = f"Вилуп впродож сьогоднішнього дня!" if delta_day_2 < 0 else f"📍{line_1}🥚{line_2}🐣\nДнів до вилупу: {delta_day_2}"
-        await callback.message.answer(
-            f"Дата закладання: {last_row[1]}\n"
-            f"Дата вилупу: {last_row[3]}\n"
-            f"Закладено, шт: {last_row[4]}\n\n"
-            f"{message}"
+        brk = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [InlineKeyboardButton(text="Перервати інкубацію",
+                                      callback_data="brk")]
+            ]
         )
+        await callback.message.answer(
+            f"Дата закладання: {last_row[2]}\n"
+            f"Дата вилупу: {last_row[4]}\n"
+            f"Закладено, шт: {last_row[5] or 'не вказано'}\n\n"
+            f"{message}", reply_markup=brk)
+    elif callback.data == "brk":
+        note_stat[user_id] = 2
+        stop_brk = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [InlineKeyboardButton(text="Скасувати переривання",
+                                      callback_data="stop_brk")]
+            ]
+        )
+        await callback.message.answer("Ви впевнені, що хочете перевати інкубацію?\n(Для підтвердження напишіть 'так')", reply_markup=stop_brk)
+
+    elif callback.data == "stop_brk":
+        await callback.message.answer("Все окей, інкубація продовжується")
+
     """elif callback.data == "Arrngmnt":
         t = await Arrangement()
         await bot.send_message(user_id, f"Розміщення перепелів", reply_markup=t)"""
@@ -193,6 +211,12 @@ async def handle_text(message: Message, bot: Bot):
     if note_stat[user_id] == 1:
         await send_note(user_id, message, bot)
         note_stat[user_id] = 0
+    if note_stat[user_id] == 2:
+        rows = worksheet.get_all_values()
+        last_row_index = len(rows)
+        worksheet.update_cell(last_row_index, 1, "*")
+        worksheet.update_cell(last_row_index, 2, "Перервано")
+        note_stat[user_id] = 0
 
 
 async def on_startup():
@@ -201,8 +225,8 @@ async def on_startup():
     # user_id = callback.from_user.id
     if rows:
         last_row = rows[-1]
-        state_day_start["date"] = last_row[1]
-        logger.info("Останній запис:", last_row[1])
+        state_day_start["date"] = last_row[2]
+        logger.info("Останній запис:", last_row[2])
 
 
 async def check_periodically(bot: Bot):
@@ -271,7 +295,7 @@ async def check_periodically(bot: Bot):
                     print("❌ Дата не збігається.")
             else:
                 print("Час перевірки! Але дати немає.")
-        elif now.hour == 19 and now.minute == 27:
+        elif now.hour == 9 and now.minute == 00:
             logger.info("час співпадає")
             if "date" in state_day_start:
                 logger.info("вибір дня")
