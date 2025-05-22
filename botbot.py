@@ -136,9 +136,9 @@ async def days_until_date(launch_date_str, target_date_str, date_format="%d.%m.%
     delta_1 = today - start_date
     delta_2 = target_date - today
     # Не враховуємо сьогодні
-    days_1 = delta_1.days #- (1 if delta_1.days >= 0 else 0)
+    days_1 = delta_1.days  # - (1 if delta_1.days >= 0 else 0)
     # Не враховуємо сьогодні
-    days_2 = delta_2.days #- (1 if delta_2.days >= 0 else 0)
+    days_2 = delta_2.days  # - (1 if delta_2.days >= 0 else 0)
     return days_1, days_2
 
 
@@ -213,13 +213,17 @@ async def handle_text(message: Message, bot: Bot):
     if note_stat[user_id] == 1:
         await send_note(user_id, message, bot)
         note_stat[user_id] = 0
-    if note_stat[user_id] == 2:
+    elif note_stat[user_id] == 2:
+        note_stat[user_id] = 3
+        await bot.send_message(user_id, "Додай коментар, аби інші також знали причину, або введи символ ' - '")
+    elif note_stat[user_id] == 3:
         rows = worksheet.get_all_values()
         last_row_index = len(rows)
         worksheet.update_cell(last_row_index, 1, "*")
         worksheet.update_cell(last_row_index, 2, "Перервано")
+        comment = "відсутній" if message == "-" else message
         for CHAT_ID in users.values():
-            await bot.send_message(CHAT_ID, "Інкубацію було скасовано")
+            await bot.send_message(CHAT_ID, f"‼Інкубацію було перервано‼\n\nКоментар:{comment}\nХто перервав:{message.from_user.first_name}{message.from_user.last_name}")
         note_stat[user_id] = 0
 
 
