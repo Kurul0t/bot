@@ -26,6 +26,8 @@ creds_path = "/etc/secrets/credentials.json"
 
 users = {1: 1030040998, 2: 1995558338}
 
+tabl="——— ——— ———— ————————\n| день|     t    | Волога|              Дії            |\n ——— ——— ———— ———————— \n|     1   |  37.8 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     2   |  37.8 | 55-65%|  Вкл. переверт. |\n ——— ——— ———— ———————— \n|     3   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     4   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     5   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     6   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     7   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     8   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     9   |  37.7 | 55-65%|     1 Провітр.      |\n ——— ——— ———— ———————— \n|    10  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    11  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    12  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    13  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    14  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    15  |  37.4 | 75-80%|Вимк. переверт.|\n ——— ——— ———— ———————— \n|    16  |  37.4 | 75-80%|                               |\n ——— ——— ———— ———————— \n|    17  |  37.4 | 75-80%|                               |\n ——— ——— ———— ———————— \n|    18  |  37.4 | 75-80%|                               |\n ——— ——— ———— ————————"
+
 # Перевірка наявності файлу
 if not os.path.exists(creds_path):
     logger.error("Файл облікових даних не знайдено: %s", creds_path)
@@ -126,7 +128,9 @@ async def send_note(user_id: int, message: types.Message, bot: Bot):
     state_day_start["date"] = today_str
     today = datetime.strptime(today_str, "%d.%m.%Y")
     date_p_17 = (today + timedelta(days=17)).strftime("%d.%m.%Y")
-    await bot.send_message(user_id, f"Орієнтовна дата вилупу: {date_p_17}")
+    for CHAT_ID in users.values():
+            await bot.send_message(CHAT_ID, f"Відбувся запуск інкубатора\nК-ть закладених яєць:{czus}\nОрієнтовна дата вилупу: {date_p_17}")
+    #await bot.send_message(user_id, f"Орієнтовна дата вилупу: {date_p_17}")
 
 
 async def days_until_date(launch_date_str, target_date_str, date_format="%d.%m.%Y"):
@@ -142,7 +146,7 @@ async def days_until_date(launch_date_str, target_date_str, date_format="%d.%m.%
     return days_1, days_2
 
 
-@dp.callback_query(lambda c: c.data in ["add_date", "Arrngmnt", "check_date", "brk", "stop_brk"])
+@dp.callback_query(lambda c: c.data in ["add_date", "Arrngmnt", "check_date", "brk", "stop_brk","tabl_incub"])
 async def process_button(callback: types.CallbackQuery, bot: Bot):
     user_id = callback.from_user.id
     if callback.data == "add_date":
@@ -184,7 +188,8 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
 
     elif callback.data == "stop_brk":
         await callback.message.answer("Все окей, інкубація продовжується")
-
+    elif callback.data == "tabl_incub":
+        await callback.message.answer(tabl)
     """elif callback.data == "Arrngmnt":
         t = await Arrangement()
         await bot.send_message(user_id, f"Розміщення перепелів", reply_markup=t)"""
@@ -194,7 +199,9 @@ menu = InlineKeyboardMarkup(
         [InlineKeyboardButton(text="Запуск інкубатора",
                               callback_data="add_date")],
         [InlineKeyboardButton(text="Відстеження прогресу",
-                              callback_data="check_date")]
+                              callback_data="check_date")],
+        [InlineKeyboardButton(text="Інструкція інкубації",
+                              callback_data="tabl_incub")]
     ]
 )
 
@@ -275,11 +282,9 @@ async def check_periodically(bot: Bot):
             else:
                 print("Час перевірки! Але дати немає.")
 
-        # відправка повідомлення в той день зранку
+        # відправка повідомлення в той день зранку і ввечері
 
-        # відправка повідомлення в той день ввечері
-
-        elif (now.hour == 8 and now.minute == 00) or (now.hour == 20 and now.minute == 00):
+        elif (now.hour == 6 and now.minute == 00) or (now.hour == 20 and now.minute == 00):
             if "date" in state_day_start:
                 print(f"Час перевірки! Дата старту: {state_day_start['date']}")
                 saved_date = datetime.strptime(
@@ -327,7 +332,7 @@ async def check_periodically(bot: Bot):
             else:
                 print("Час перевірки! Але дати немає.")
 
-        await asyncio.sleep(40)
+        await asyncio.sleep(60)
 
 
 async def main():
