@@ -170,7 +170,7 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
                 [InlineKeyboardButton(text="Перервати інкубацію",
                                       callback_data="brk")]
             ]
-        )
+        ) 
         await callback.message.answer(
             f"Дата закладання: {last_row[2]}\n"
             f"Дата вилупу: {last_row[4]}\n"
