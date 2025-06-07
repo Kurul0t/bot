@@ -349,7 +349,43 @@ async def monitor_sheet():
         current_data = worksheet_1.get_all_values()
         if current_data != prev_data:
             logger.info("Таблиця змінилася!")
-            await bot.send_message(1030040998, "зміни в таблиці")
+
+            header = current_data[0]
+            filled_columns = set()
+            profit_sum = 0
+
+            # ТУТ: вкажи індекси колонок, які потрібно перевірити на непорожність
+            important_column_indexes = [1, 2, 3, 4, 5, 6]  # приклад
+
+            for row in current_data[1:]:
+                # ----- 1. Обробка прибутку -----
+                try:
+                    profit_index = header.index("баланс ферми")
+                    profit_value = row[profit_index].strip()
+                    if profit_value:
+                        number = float(profit_value.replace(",", "."))
+                        profit_sum += number
+                except (ValueError, IndexError):
+                    continue  # нечислове або відсутнє — пропустити
+
+                # ----- 2. Обробка категорій -----
+                for idx in important_column_indexes:
+                    if idx < len(row):
+                        cell_value = row[idx].strip()
+                        if cell_value:  # не порожня клітинка
+                            filled_columns.add(header[idx])
+
+            # Формування повідомлення
+            if profit_sum >= 0:
+                result_line = f"+{profit_sum}"
+            else:
+                result_line = f"{profit_sum}"  # already has -
+
+            message = result_line + "\n"
+            if filled_columns:
+                message += "Категорії: " + ", ".join(sorted(filled_columns))
+
+            await bot.send_message(1030040998, message)
             prev_data = current_data
 
 
