@@ -350,43 +350,45 @@ async def monitor_sheet():
         if current_data != prev_data:
             logger.info("Таблиця змінилася!")
 
-            header = current_data[0]
+            header = current_data[0]  # перший рядок — заголовок
+            row = current_data[-1]    # останній рядок
             filled_columns = set()
             profit_sum = 0
 
-            # ТУТ: вкажи індекси колонок, які потрібно перевірити на непорожність
-            important_column_indexes = [1, 2, 3, 4, 5, 6]  # приклад
+            # 🔧 вкажи індекси колонок, які потрібно перевіряти
+            important_column_indexes = [1, 3, 5, 7, 9, 15, 16]
 
-            for row in current_data[1:]:
-                # ----- 1. Обробка прибутку -----
-                try:
-                    profit_index = header.index("баланс ферми")
-                    profit_value = row[profit_index].strip()
-                    if profit_value:
-                        number = float(profit_value.replace(",", "."))
-                        profit_sum += number
-                except (ValueError, IndexError):
-                    continue  # нечислове або відсутнє — пропустити
+            # 📈 Обчислення прибутку
+            try:
+                profit_index = header.index("прибуток")
+                profit_value = row[profit_index].strip()
+                if profit_value:
+                    number = float(profit_value.replace(",", "."))
+                    profit_sum += number
+            except (ValueError, IndexError):
+                pass  # якщо помилка — просто пропустити
 
-                # ----- 2. Обробка категорій -----
-                for idx in important_column_indexes:
-                    if idx < len(row):
-                        cell_value = row[idx].strip()
-                        if cell_value:  # не порожня клітинка
-                            filled_columns.add(header[idx])
+            # ✅ Перевірка заповнених категорій
+            for idx in important_column_indexes:
+                if idx < len(row):
+                    cell_value = str(row[idx]).strip().replace('\u200b', '')
+                    if cell_value:
+                        filled_columns.add(header[idx])
 
-            # Формування повідомлення
+            # 📨 Формування повідомлення
             if profit_sum >= 0:
                 result_line = f"+{profit_sum}"
             else:
-                result_line = f"{profit_sum}"  # already has -
+                result_line = f"{profit_sum}"
 
             message = result_line + "\n"
             if filled_columns:
                 message += "Категорії: " + ", ".join(sorted(filled_columns))
 
             await bot.send_message(1030040998, message)
+
             prev_data = current_data
+
 
 
 async def main():
