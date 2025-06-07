@@ -67,10 +67,15 @@ except Exception as e:
 client = gspread.authorize(creds)
 
 # Відкриття Google таблиціDA
-KEY = os.environ.get("KEY")
+KEY_1 = os.environ.get("KEY_1")
+KEY_2 = os.environ.get("KEY_2")
 
-sheet = client.open_by_key(KEY)
-worksheet = sheet.get_worksheet(0)
+sheet_1 = client.open_by_key(KEY_1)
+worksheet_1 = sheet_1.get_worksheet(0)
+
+sheet_2 = client.open_by_key(KEY_2)
+worksheet_2 = sheet_2.get_worksheet(0)
+
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 if not BOT_TOKEN:
@@ -89,14 +94,14 @@ async def handle_ping(message: types.Message):
 
 
 async def add_date(callback: types.CallbackQuery):
-    rows = worksheet.get_all_values()
+    rows = worksheet_1.get_all_values()
     user_id = callback.from_user.id
     if rows and rows[-1][0] == '*':
         today_str = datetime.now(UA_TZ).strftime("%d.%m.%Y")
         state_day_start["date"] = today_str
         today = datetime.strptime(today_str, "%d.%m.%Y")
         date_p_17 = (today + timedelta(days=17)).strftime("%d.%m.%Y")
-        worksheet.append_row([None, None, today_str, None, date_p_17])
+        worksheet_1.append_row([None, None, today_str, None, date_p_17])
         await callback.answer("✅Дата записана✅")
         await callback.message.answer("✅ Дата успішно додана в таблицю!")
         note_stat[user_id] = 1
@@ -120,10 +125,10 @@ async def start(message: types.Message):
 
 
 async def send_note(user_id: int, message: types.Message, bot: Bot):
-    rows = worksheet.get_all_values()
+    rows = worksheet_1.get_all_values()
     czus = message.text
     last_row_index = len(rows)
-    worksheet.update_cell(last_row_index, 6, czus)
+    worksheet_1.update_cell(last_row_index, 6, czus)
     today_str = datetime.now(UA_TZ).strftime("%d.%m.%Y")
     state_day_start["date"] = today_str
     today = datetime.strptime(today_str, "%d.%m.%Y")
@@ -152,7 +157,7 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
     if callback.data == "add_date":
         await add_date(callback)
     elif callback.data == "check_date":
-        rows = worksheet.get_all_values()
+        rows = worksheet_1.get_all_values()
         """if not rows or len(rows[-1]) < 5 or not all([rows[-1][1], rows[-1][3], rows[-1][4]]):
             await callback.message.answer("Помилка: Недостатньо даних у таблиці.")
             return"""
@@ -224,10 +229,10 @@ async def handle_text(message: Message, bot: Bot):
         note_stat[user_id] = 3
         await bot.send_message(user_id, "Додай коментар, аби інші також знали причину, або введи символ ' - '")
     elif note_stat[user_id] == 3:
-        rows = worksheet.get_all_values()
+        rows = worksheet_1.get_all_values()
         last_row_index = len(rows)
-        worksheet.update_cell(last_row_index, 1, "*")
-        worksheet.update_cell(last_row_index, 2, "Перервано")
+        worksheet_1.update_cell(last_row_index, 1, "*")
+        worksheet_1.update_cell(last_row_index, 2, "Перервано")
         comment = "відсутній" if message.text == "-" else message.text
         for CHAT_ID in users.values():
             await bot.send_message(CHAT_ID, f"‼Інкубацію було перервано‼\n\nКоментар:{comment}\nХто перервав:{message.from_user.first_name or ''}{message.from_user.last_name or ''}")
@@ -236,7 +241,7 @@ async def handle_text(message: Message, bot: Bot):
 
 async def on_startup():
     print("Програма запущена. Виконання ініціалізації...")
-    rows = worksheet.get_all_values()
+    rows = worksheet_1.get_all_values()
     # user_id = callback.from_user.id
     if rows:
         last_row = rows[-1]
@@ -258,11 +263,11 @@ async def check_periodically(bot: Bot):
                 saved_date = datetime.strptime(
                     state_day_start["date"], "%d.%m.%Y")
                 today_str = now.strftime("%d.%m.%Y")
-                date_plus_8 = (saved_date + timedelta(days=7)
+                date_plus_8 = (saved_date + timedelta(days=8)
                                ).strftime("%d.%m.%Y")
-                date_plus_14 = (saved_date + timedelta(days=13)
+                date_plus_14 = (saved_date + timedelta(days=14)
                                 ).strftime("%d.%m.%Y")
-                date_plus_17 = (saved_date + timedelta(days=16)
+                date_plus_17 = (saved_date + timedelta(days=17)
                                 ).strftime("%d.%m.%Y")
 
                 if date_plus_8 == today_str:
@@ -290,9 +295,9 @@ async def check_periodically(bot: Bot):
                 saved_date = datetime.strptime(
                     state_day_start["date"], "%d.%m.%Y")
                 today_str = now.strftime("%d.%m.%Y")
-                date_plus_9 = (saved_date + timedelta(days=8)
+                date_plus_9 = (saved_date + timedelta(days=9)
                                ).strftime("%d.%m.%Y")
-                date_plus_15 = (saved_date + timedelta(days=14)
+                date_plus_15 = (saved_date + timedelta(days=15)
                                 ).strftime("%d.%m.%Y")
 
                 if date_plus_9 == today_str:
@@ -316,7 +321,7 @@ async def check_periodically(bot: Bot):
                     state_day_start["date"], "%d.%m.%Y")
                 today_str = now.strftime("%d.%m.%Y")
 
-                date_plus_18 = (saved_date + timedelta(days=17)
+                date_plus_18 = (saved_date + timedelta(days=18)
                                 ).strftime("%d.%m.%Y")
 
                 if date_plus_18 == today_str:
@@ -324,9 +329,9 @@ async def check_periodically(bot: Bot):
                     print("✅ Дата збігається! Сьогодні 18-й день.")
                     for CHAT_ID in users.values():
                         await bot.send_message(CHAT_ID, "Сьогодні 18-й день інкубації, день вилупу🥳")
-                    rows = worksheet.get_all_values()
+                    rows = worksheet_1.get_all_values()
                     last_row_index = len(rows)
-                    worksheet.update_cell(last_row_index, 1, "*")
+                    worksheet_1.update_cell(last_row_index, 1, "*")
                 else:
                     print("❌ Дата не збігається.")
             else:
@@ -335,9 +340,23 @@ async def check_periodically(bot: Bot):
         await asyncio.sleep(60)
 
 
+async def monitor_sheet():
+    prev_data = worksheet_1.get_all_values()
+
+    while True:
+        await asyncio.sleep(300)  # чекати 5 хвилин
+
+        current_data = worksheet_1.get_all_values()
+        if current_data != prev_data:
+            logger.info("Таблиця змінилася!")
+            await bot.send_message(1030040998, "зміни в таблиці")
+            prev_data = current_data
+
+
 async def main():
     await on_startup()
     asyncio.create_task(check_periodically(bot))
+    asyncio.create_task(monitor_sheet())
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
