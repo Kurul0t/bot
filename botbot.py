@@ -356,11 +356,11 @@ async def monitor_sheet():
             profit_sum = 0
 
             # 🔧 вкажи індекси колонок, які потрібно перевіряти
-            important_column_indexes = [1, 3, 5, 7, 9, 15, 16]
+            important_column_indexes = [1, 2, 3, 4, 5, 6]
 
             # 📈 Обчислення прибутку
             try:
-                profit_index = header.index("прибуток")
+                profit_index = header.index("баланс ферми")
                 profit_value = row[profit_index].strip()
                 if profit_value:
                     number = float(profit_value.replace(",", "."))
@@ -383,7 +383,7 @@ async def monitor_sheet():
 
             message = result_line + "\n"
             if filled_columns:
-                message += "Категорії: " + ", ".join(sorted(filled_columns))
+                message += "Категорії: " + "\n".join(filled_columns)
 
             await bot.send_message(1030040998, message)
 
