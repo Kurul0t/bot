@@ -350,33 +350,43 @@ async def monitor_sheet():
         if current_data != prev_data:
             logger.info("Таблиця змінилася!")
 
-            header = current_data[0]  # перший рядок — заголовок
-            row = current_data[-1]    # останній рядок
+            header = current_data[0]
+            row = current_data[-1]
             filled_columns = {}
+
+            # Ініціалізація значень за замовчуванням
             profit_sum = 0
             expens_sum = 0
             result = 0
-            profit_value = 0
-            expens_value = 0 
+            profit_value = "0"
+            expens_value = "0"
 
-            # 🔧 вкажи індекси колонок, які потрібно перевіряти
             important_column_indexes = [0, 1, 2, 3, 4, 5]
-            # result = None
-            # 📈 Обчислення прибутку
+
             try:
                 profit_index = header.index("прибуток")
-                profit_value = row[profit_index].strip()
+                profit_value = row[profit_index].strip() or "0"
 
                 expens_index = header.index("затрати/грн")
-                expens_value = row[expens_index].strip()
-                if profit_value:
-                    profit_sum += float(profit_value)
-                if expens_value:
-                    expens_sum += float(expens_value)
+                expens_value = row[expens_index].strip() or "0"
+
+                profit_sum = float(profit_value)
+                expens_sum = float(expens_value)
                 result = profit_sum - expens_sum
 
             except (ValueError, IndexError):
-                pass  # якщо помилка — просто пропустити
+                # Обробка, якщо якісь колонки відсутні або нечислові
+                try:
+                    profit_sum = float(profit_value)
+                except ValueError:
+                    profit_sum = 0
+
+                try:
+                    expens_sum = float(expens_value)
+                except ValueError:
+                    expens_sum = 0
+
+                result = profit_sum - expens_sum
 
             # ✅ Перевірка заповнених категорій
             for idx in important_column_indexes:
@@ -385,21 +395,18 @@ async def monitor_sheet():
                     if cell_value:
                         clean_name = header[idx].replace("за ", "").strip()
                         filled_columns[clean_name] = cell_value
-            # 📨 Формування повідомлення
-            if result >= 0:
-                result_line = f"+{result}"
-            else:
-                result_line = f"{result}"
 
+            # 📨 Формування повідомлення
+            result_line = f"+{result}" if result >= 0 else f"{result}"
             message = result_line
 
-            if profit_value:
+            if float(profit_value):
                 if filled_columns:
                     message += "\nПродано:\n"
                     for name, value in filled_columns.items():
                         message += f"{name} ({value}грн)\n"
 
-            if expens_value:
+            if float(expens_value):
                 message += f"\nВитрачено на:\n{row[6]} ({expens_value}грн)"
 
             await bot.send_message(1030040998, message)
