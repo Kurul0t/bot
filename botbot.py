@@ -354,11 +354,12 @@ async def monitor_sheet():
             row = current_data[-1]    # останній рядок
             filled_columns = {}
             profit_sum = 0
-            expens_sum=0
+            expens_sum = 0
+            result = 0
 
             # 🔧 вкажи індекси колонок, які потрібно перевіряти
             important_column_indexes = [0, 1, 2, 3, 4, 5]
-            result = None
+            # result = None
             # 📈 Обчислення прибутку
             try:
                 profit_index = header.index("прибуток")
@@ -371,6 +372,7 @@ async def monitor_sheet():
                 if expens_value:
                     expens_sum += float(expens_value)
                 result = profit_sum - expens_sum
+
             except (ValueError, IndexError):
                 pass  # якщо помилка — просто пропустити
 
@@ -383,11 +385,11 @@ async def monitor_sheet():
                         filled_columns[clean_name] = cell_value
             # 📨 Формування повідомлення
             if result >= 0:
-                result = f"+{result}"
+                result_line = f"+{result}"
             else:
-                result = f"{result}"
+                result_line = f"{result}"
 
-            message = result
+            message = result_line
 
             if profit_value:
                 if filled_columns:
