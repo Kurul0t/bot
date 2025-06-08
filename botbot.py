@@ -356,6 +356,8 @@ async def monitor_sheet():
             profit_sum = 0
             expens_sum = 0
             result = 0
+            profit_value = 0
+            expens_value = 0 
 
             # 🔧 вкажи індекси колонок, які потрібно перевіряти
             important_column_indexes = [0, 1, 2, 3, 4, 5]
