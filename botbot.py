@@ -362,7 +362,7 @@ async def check_periodically(bot: Bot):
                     print("❌ Дата не збігається.")
             else:
                 print("Час перевірки! Але дати немає.")
-        elif now.hour == 21 and now.minute == 45:
+        elif now.hour == 21 and now.minute == 54:
             logger.info("час співпадає")
             if "date" in state_day_start:
                 logger.info("вибір дня")
@@ -397,8 +397,9 @@ async def check_periodically(bot: Bot):
 
 
 async def cycl(st: int):
-    st
+    #st=st
     while True:
+        note_stat[1111] = 1
         if st == 1:
             rows = worksheet_1.get_all_values()
             row = rows[-1]
@@ -406,7 +407,6 @@ async def cycl(st: int):
             for CHAT_ID in users.values():
                 await bot.send_message(CHAT_ID, f"Загалом вилупилося циплаків: {row[6]}\n Відсоток вилупу: {ch}%")
             break
-        note_stat[1111] = 1
         for CHAT_ID in users.values():
             await bot.send_message(CHAT_ID, "Скільки циплаків вилупилося на даний момент?")
         await asyncio.sleep(2*30)
