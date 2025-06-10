@@ -284,7 +284,7 @@ async def handle_text(message: Message, bot: Bot):
         worksheet_1.update_cell(last_row_index, 7, message.text)
         for CHAT_ID in users.values():
             await bot.send_message(CHAT_ID, f"Оновлення кількості вилуплених циплаків: {message.text}")
-            await bot.send_message(CHAT_ID, "Наступне оновлення через 2 години")
+            await bot.send_message(CHAT_ID, "Наступне оновлення через 2 години",reply_markup=cans)
 
         note_stat[1111] = 0
 
@@ -394,8 +394,6 @@ async def check_periodically(bot: Bot):
 
 
 async def check_count(bot: Bot):
-    for CHAT_ID in users.values():
-        await bot.send_message(CHAT_ID, "Скільки циплаків вилупилося на даний момент?")
 
     note_stat[1111] = 1
     await cycl(0)
