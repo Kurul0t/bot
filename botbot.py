@@ -401,12 +401,12 @@ async def cycl(st: int):
     while True:
         note_stat[1111] = 1
         if st == 1:
+            note_stat[1111] = 0
             rows = worksheet_1.get_all_values()
             row = rows[-1]
             #ch = row[6]*100/row[5]
             for CHAT_ID in users.values():
-                await bot.send_message(CHAT_ID, f"Загалом вилупилося циплаків: {row[6]}\n Відсоток вилупу: {row[6]}%")
-            note_stat[1111] = 0
+                await bot.send_message(CHAT_ID, f"Загалом вилупилося циплаків: {row[6]}\n Відсоток вилупу: {row[7]}%")
             break
         for CHAT_ID in users.values():
             await bot.send_message(CHAT_ID, "Скільки циплаків вилупилося на даний момент?")
