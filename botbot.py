@@ -362,7 +362,7 @@ async def check_periodically(bot: Bot):
                     print("❌ Дата не збігається.")
             else:
                 print("Час перевірки! Але дати немає.")
-        elif now.hour == 21 and now.minute == 7:
+        elif now.hour == 21 and now.minute == 15:
             logger.info("час співпадає")
             if "date" in state_day_start:
                 logger.info("вибір дня")
