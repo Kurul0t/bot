@@ -13,6 +13,7 @@ import logging
 
 note_stat = {}
 chus_quail = {}
+st={}
 UA_TZ = pytz.timezone("Europe/Kyiv")  # Український час
 
 # Налаштування логування для діагностики
@@ -273,7 +274,8 @@ async def handle_text(message: Message, bot: Bot):
         note_stat[user_id] = 0
     elif note_stat[user_id] == 4:
         if message.text.lower() == "так":
-            await cycl(1)
+            st[1]=1
+            await cycl()
         elif message.text.lower() == "ні":
             await bot.send_message(user_id, "Наступне оновлення через 2 години")
         note_stat[user_id] = 0
@@ -362,7 +364,7 @@ async def check_periodically(bot: Bot):
                     print("❌ Дата не збігається.")
             else:
                 print("Час перевірки! Але дати немає.")
-        elif now.hour == 23 and now.minute == 14:
+        elif now.hour == 23 and now.minute == 29:
             logger.info("час співпадає")
             if "date" in state_day_start:
                 logger.info("вибір дня")
@@ -384,7 +386,10 @@ async def check_periodically(bot: Bot):
 
                     chus_quail[1] = last_row_index
                     worksheet_1.update_cell(last_row_index, 1, "*")
-                    await cycl(0)
+                    logger.info("я дебіл")
+                    st[1]=1
+                    await cycl()
+
                 else:
                     print("❌ Дата не збігається.")
             else:
@@ -396,20 +401,20 @@ async def check_periodically(bot: Bot):
 
 
 
-async def cycl(st = 1):
+async def cycl():
     #st=st
     while True:
-        if st == 1:
+        if st[1] == 1:
             note_stat[1111] = 0
             rows = worksheet_1.get_all_values()
             row = rows[-1]
             #ch = row[6]*100/row[5]
             for CHAT_ID in users.values():
                 await bot.send_message(CHAT_ID, f"Загалом вилупилося циплаків: {row[6]}\n Відсоток вилупу: {row[7]}%")
-            logger.info(f"перед {st}")
+            logger.info(f"перед {st[1]}")
             break
         else:
-            logger.info(st)
+            logger.info(st[1])
             note_stat[1111] = 1
             for CHAT_ID in users.values():
                 await bot.send_message(CHAT_ID, "Скільки циплаків вилупилося на даний момент?")
