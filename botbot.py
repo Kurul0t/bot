@@ -362,7 +362,7 @@ async def check_periodically(bot: Bot):
                     print("❌ Дата не збігається.")
             else:
                 print("Час перевірки! Але дати немає.")
-        elif now.hour == 9 and now.minute == 00:
+        elif now.hour == 20 and now.minute == 58:
             logger.info("час співпадає")
             if "date" in state_day_start:
                 logger.info("вибір дня")
@@ -418,10 +418,10 @@ async def cycl(st: int):
 
 
 async def monitor_sheet():
-    prev_data = worksheet_1.get_all_values()
+    prev_data = worksheet_2.get_all_values()
 
     while True:
-        await asyncio.sleep(60)  # чекати 5 хвилин
+        await asyncio.sleep(300)  # чекати 5 хвилин
 
         current_data = worksheet_2.get_all_values()
         if current_data != prev_data:
