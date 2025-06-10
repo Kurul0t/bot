@@ -406,6 +406,7 @@ async def cycl(st: int):
             #ch = row[6]*100/row[5]
             for CHAT_ID in users.values():
                 await bot.send_message(CHAT_ID, f"Загалом вилупилося циплаків: {row[6]}\n Відсоток вилупу: {row[6]}%")
+            note_stat[1111] = 0
             break
         for CHAT_ID in users.values():
             await bot.send_message(CHAT_ID, "Скільки циплаків вилупилося на даний момент?")
