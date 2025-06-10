@@ -364,7 +364,7 @@ async def check_periodically(bot: Bot):
                     print("❌ Дата не збігається.")
             else:
                 print("Час перевірки! Але дати немає.")
-        elif now.hour == 23 and now.minute == 29:
+        elif now.hour == 23 and now.minute == 38:
             logger.info("час співпадає")
             if "date" in state_day_start:
                 logger.info("вибір дня")
@@ -387,7 +387,7 @@ async def check_periodically(bot: Bot):
                     chus_quail[1] = last_row_index
                     worksheet_1.update_cell(last_row_index, 1, "*")
                     logger.info("я дебіл")
-                    st[1]=1
+                    st[1]=0
                     await cycl()
 
                 else:
