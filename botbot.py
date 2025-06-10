@@ -12,6 +12,7 @@ from aiogram.client.bot import DefaultBotProperties
 import logging
 
 note_stat = {}
+chus_quail = {}
 UA_TZ = pytz.timezone("Europe/Kyiv")  # Український час
 
 # Налаштування логування для діагностики
@@ -26,7 +27,7 @@ creds_path = "/etc/secrets/credentials.json"
 
 users = {1: 1030040998, 2: 1995558338}
 
-tabl = "——— ——— ———— ————————\n| день|     t    | Волога|              Дії            |\n ——— ——— ———— ———————— \n|     1   |  37.8 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     2   |  37.8 | 55-65%|  Вкл. переверт. |\n ——— ——— ———— ———————— \n|     3   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     4   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     5   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     6   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     7   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     8   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     9   |  37.7 | 55-65%|     1 Провітр.      |\n ——— ——— ———— ———————— \n|    10  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    11  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    12  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    13  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    14  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    15  |  37.4 | 75-80%|Вимк. переверт.|\n ——— ——— ———— ———————— \n|    16  |  37.4 | 75-80%|                               |\n ——— ——— ———— ———————— \n|    17  |  37.4 | 75-80%|                               |\n ——— ——— ———— ———————— \n|    18  |  37.4 | 75-80%|                               |\n ——— ——— ———— ————————"
+tabl = "——— ——— ———— ————————\n| день|     t    | Волога|              Дії            |\n ——— ——— ———— ———————— \n|     1   |  37.8 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     2   |  37.8 | 55-65%|  Вкл. переверт. |\n ——— ——— ———— ———————— \n|     3   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     4   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     5   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     6   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     7   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     8   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     9   |  37.7 | 55-65%|     1 Провітр.      |\n ——— ——— ———— ———————— \n|    10  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    11  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    12  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    13  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    14  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    15  |  37.4 | 75-80%|Вимк. переверт.|\n ——— ——— ———— ———————— \n|    16  |  37.4 | 75-80%|                               |\n ——— ——— ———— ———————— \n|    17  |  37.4 | 75-80%|                               |\n ——— ——— ———— ———————— \n ——— ——— ———— ————————"
 
 # Перевірка наявності файлу
 if not os.path.exists(creds_path):
@@ -151,7 +152,7 @@ async def days_until_date(launch_date_str, target_date_str, date_format="%d.%m.%
     return days_1, days_2
 
 
-@dp.callback_query(lambda c: c.data in ["add_date", "Arrngmnt", "check_date", "brk", "stop_brk", "tabl_incub"])
+@dp.callback_query(lambda c: c.data in ["add_date", "Arrngmnt", "check_date", "brk", "stop_brk", "tabl_incub", "cans_qwiz"])
 async def process_button(callback: types.CallbackQuery, bot: Bot):
     user_id = callback.from_user.id
     if callback.data == "add_date":
@@ -169,7 +170,7 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
             return
         line_1 = "-" * delta_day_1 if delta_day_1 >= 0 else ""
         line_2 = "-" * delta_day_2 if delta_day_2 >= 0 else ""
-        #message = f"Вилуп впродож сьогоднішнього дня!" if delta_day_2 < 0 else f"📍{line_1}🥚{line_2}🐣\nДнів до вилупу: {delta_day_2}"
+        # message = f"Вилуп впродож сьогоднішнього дня!" if delta_day_2 < 0 else f"📍{line_1}🥚{line_2}🐣\nДнів до вилупу: {delta_day_2}"
         brk = InlineKeyboardMarkup(
             inline_keyboard=[
                 [InlineKeyboardButton(text="Перервати інкубацію",
@@ -179,7 +180,7 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
         zapusck = InlineKeyboardMarkup(
             inline_keyboard=[
                 [InlineKeyboardButton(text="Запуск інкубатора",
-                                    callback_data="add_date")]
+                                      callback_data="add_date")]
             ])
         if delta_day_2 < 0:
             message = "Вилуп впродож сьогоднішнього дня!"
@@ -198,7 +199,7 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
                 f"Дата вилупу: {last_row[4]}\n"
                 f"Закладено, шт: {last_row[5] or 'не вказано'}\n\n"
                 f"{message}", reply_markup=brk)
-            
+
     elif callback.data == "brk":
         rows = worksheet_1.get_all_values()
         last_row = rows[-1]
@@ -208,7 +209,7 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
             stop_brk = InlineKeyboardMarkup(
                 inline_keyboard=[
                     [InlineKeyboardButton(text="Скасувати переривання",
-                                        callback_data="stop_brk")]
+                                          callback_data="stop_brk")]
                 ]
             )
             await callback.message.answer("Ви впевнені, що хочете перевати інкубацію?\n(Для підтвердження напишіть 'так')", reply_markup=stop_brk)
@@ -217,6 +218,9 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
         await callback.message.answer("Все окей, інкубація продовжується")
     elif callback.data == "tabl_incub":
         await callback.message.answer(tabl)
+    elif callback.data == "cans_qwiz":
+        await callback.message.answer("Чи усіх циплаків було пораховано?\n(Для підтвердження/спростування напиши так/ні)")
+        note_stat[user_id] = 4
     """elif callback.data == "Arrngmnt":
         t = await Arrangement()
         await bot.send_message(user_id, f"Розміщення перепелів", reply_markup=t)"""
@@ -238,10 +242,18 @@ async def reply_action(message: types.Message, bot: Bot):
     user_id = message.from_user.id
     await bot.send_message(user_id, "Обери дію:", reply_markup=menu)
 
+cans = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [InlineKeyboardButton(text="Вимкнути оновлення",
+                              callback_data="cans_qwiz")]
+    ])
+
 
 @dp.message(lambda message: message.content_type == ContentType.TEXT)
 async def handle_text(message: Message, bot: Bot):
     user_id = message.from_user.id
+    if 1111 not in note_stat:
+        note_stat[1111] = 0
     if user_id not in note_stat:
         note_stat[user_id] = 0
     if note_stat[user_id] == 1:
@@ -259,6 +271,22 @@ async def handle_text(message: Message, bot: Bot):
         for CHAT_ID in users.values():
             await bot.send_message(CHAT_ID, f"‼Інкубацію було перервано‼\n\nКоментар:{comment}\nХто перервав:{message.from_user.first_name or ''}{message.from_user.last_name or ''}")
         note_stat[user_id] = 0
+    elif note_stat[user_id] == 4:
+        if message.text.lower() == "так":
+            await cycl(1)
+        elif message.text.lower() == "ні":
+            await bot.send_message(user_id, "Наступне оновлення через 2 години")
+        note_stat[user_id] = 0
+
+    if note_stat[1111] == 1:
+
+        last_row_index = chus_quail[1]
+        worksheet_1.update_cell(last_row_index, 7, message.text)
+        for CHAT_ID in users.values():
+            await bot.send_message(CHAT_ID, f"Оновлення кількості вилуплених циплаків: {message.text}")
+            await bot.send_message(CHAT_ID, "Наступне оновлення через 2 години")
+
+        note_stat[1111] = 0
 
 
 async def on_startup():
@@ -289,7 +317,7 @@ async def check_periodically(bot: Bot):
                                ).strftime("%d.%m.%Y")
                 date_plus_14 = (saved_date + timedelta(days=14)
                                 ).strftime("%d.%m.%Y")
-                date_plus_17 = (saved_date + timedelta(days=17)
+                date_plus_16 = (saved_date + timedelta(days=16)
                                 ).strftime("%d.%m.%Y")
 
                 if date_plus_8 == today_str:
@@ -300,10 +328,10 @@ async def check_periodically(bot: Bot):
                     print("✅ Дата збігається! Сьогодні 14-й день.")
                     for CHAT_ID in users.values():
                         await bot.send_message(CHAT_ID, "Сьогодні 14-й день інкубації, завтра потрібно зменшити температуру до 37.4, збільшити вологу до 75-80% та викласти яйця на дно інкубатора")
-                elif date_plus_17 == today_str:
-                    print("✅ Дата збігається! Сьогодні 17-й день.")
+                elif date_plus_16 == today_str:
+                    print("✅ Дата збігається! Сьогодні 16-й день.")
                     for CHAT_ID in users.values():
-                        await bot.send_message(CHAT_ID, "Сьогодні 17-й день інкубації, скоро почнеться вилуп🥳")
+                        await bot.send_message(CHAT_ID, "Сьогодні 16-й день інкубації, скоро почнеться вилуп🥳")
                 else:
                     print("❌ Дата не збігається.")
             else:
@@ -343,23 +371,50 @@ async def check_periodically(bot: Bot):
                     state_day_start["date"], "%d.%m.%Y")
                 today_str = now.strftime("%d.%m.%Y")
 
-                date_plus_18 = (saved_date + timedelta(days=18)
+                date_plus_17 = (saved_date + timedelta(days=17)
                                 ).strftime("%d.%m.%Y")
 
-                if date_plus_18 == today_str:
+                if date_plus_17 == today_str:
                     logger.info("відправка")
-                    print("✅ Дата збігається! Сьогодні 18-й день.")
+                    print("✅ Дата збігається! Сьогодні 17-й день.")
                     for CHAT_ID in users.values():
-                        await bot.send_message(CHAT_ID, "Сьогодні 18-й день інкубації, день вилупу🥳")
+                        await bot.send_message(CHAT_ID, "Сьогодні 17-й день інкубації, день вилупу🥳")
                     rows = worksheet_1.get_all_values()
                     last_row_index = len(rows)
+
+                    chus_quail[1] = last_row_index
                     worksheet_1.update_cell(last_row_index, 1, "*")
+                    await check_count(bot)
                 else:
                     print("❌ Дата не збігається.")
             else:
                 print("Час перевірки! Але дати немає.")
 
         await asyncio.sleep(60)
+
+
+async def check_count(bot: Bot):
+    for CHAT_ID in users.values():
+        await bot.send_message(CHAT_ID, "Скільки циплаків вилупилося на даний момент?")
+
+    note_stat[1111] = 1
+    await cycl(0)
+
+
+async def cycl(st: int):
+
+    while True:
+        if st == 1:
+            rows = worksheet_1.get_all_values()
+            row = rows[-1]
+            ch = row[6]*100/row[5]
+            for CHAT_ID in users.values():
+                await bot.send_message(CHAT_ID, f"Загалом вилупилося циплаків: {row[6]}\n Відсоток вилупу: {ch}%")
+            break
+
+        for CHAT_ID in users.values():
+            await bot.send_message(CHAT_ID, "Скільки циплаків вилупилося на даний момент?")
+        await asyncio.sleep(2*3600)
 
 
 async def monitor_sheet():
@@ -433,7 +488,10 @@ async def monitor_sheet():
 
             await bot.send_message(1030040998, message)
 
-            prev_data = current_data
+            """if float(profit_value):
+                bot.send_message(1030040998,"Надішли номер телефону замовника та його Ім'я")
+
+            prev_data = current_data"""
 
 
 async def main():
