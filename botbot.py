@@ -219,8 +219,8 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
     elif callback.data == "tabl_incub":
         await callback.message.answer(tabl)
     elif callback.data == "cans_qwiz":
-        await callback.message.answer("Чи усіх циплаків було пораховано?\n(Для підтвердження/спростування напиши так/ні)")
         note_stat[user_id] = 4
+        await callback.message.answer("Чи усіх циплаків було пораховано?\n(Для підтвердження/спростування напиши так/ні)")
     """elif callback.data == "Arrngmnt":
         t = await Arrangement()
         await bot.send_message(user_id, f"Розміщення перепелів", reply_markup=t)"""
@@ -362,7 +362,7 @@ async def check_periodically(bot: Bot):
                     print("❌ Дата не збігається.")
             else:
                 print("Час перевірки! Але дати немає.")
-        elif now.hour == 22 and now.minute == 35:
+        elif now.hour == 22 and now.minute == 46:
             logger.info("час співпадає")
             if "date" in state_day_start:
                 logger.info("вибір дня")
@@ -399,7 +399,6 @@ async def check_periodically(bot: Bot):
 async def cycl(st: int):
     #st=st
     while True:
-        note_stat[1111] = 1
         if st == 1:
             note_stat[1111] = 0
             rows = worksheet_1.get_all_values()
@@ -407,10 +406,14 @@ async def cycl(st: int):
             #ch = row[6]*100/row[5]
             for CHAT_ID in users.values():
                 await bot.send_message(CHAT_ID, f"Загалом вилупилося циплаків: {row[6]}\n Відсоток вилупу: {row[7]}%")
+            logger.info(f"перед {st}")
             break
-        for CHAT_ID in users.values():
-            await bot.send_message(CHAT_ID, "Скільки циплаків вилупилося на даний момент?")
-        await asyncio.sleep(2*30)
+        else:
+            logger.info(st)
+            note_stat[1111] = 1
+            for CHAT_ID in users.values():
+                await bot.send_message(CHAT_ID, "Скільки циплаків вилупилося на даний момент?")
+            await asyncio.sleep(2*30)
 
 
 async def monitor_sheet():
