@@ -412,7 +412,7 @@ async def cycl(st: int):
 
         for CHAT_ID in users.values():
             await bot.send_message(CHAT_ID, "Скільки циплаків вилупилося на даний момент?")
-        await asyncio.sleep(2*3600)
+        await asyncio.sleep(2*30)
 
 
 async def monitor_sheet():
