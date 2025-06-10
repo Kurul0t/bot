@@ -397,7 +397,7 @@ async def check_periodically(bot: Bot):
 
 
 async def cycl(st: int):
-    note_stat[1111] = 1
+    
     while True:
         if st == 1:
             rows = worksheet_1.get_all_values()
@@ -406,7 +406,7 @@ async def cycl(st: int):
             for CHAT_ID in users.values():
                 await bot.send_message(CHAT_ID, f"Загалом вилупилося циплаків: {row[6]}\n Відсоток вилупу: {ch}%")
             break
-
+        note_stat[1111] = 1
         for CHAT_ID in users.values():
             await bot.send_message(CHAT_ID, "Скільки циплаків вилупилося на даний момент?")
         await asyncio.sleep(2*30)
