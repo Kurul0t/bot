@@ -169,27 +169,49 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
             return
         line_1 = "-" * delta_day_1 if delta_day_1 >= 0 else ""
         line_2 = "-" * delta_day_2 if delta_day_2 >= 0 else ""
-        message = f"Вилуп впродож сьогоднішнього дня!" if delta_day_2 < 0 else f"📍{line_1}🥚{line_2}🐣\nДнів до вилупу: {delta_day_2}"
+        #message = f"Вилуп впродож сьогоднішнього дня!" if delta_day_2 < 0 else f"📍{line_1}🥚{line_2}🐣\nДнів до вилупу: {delta_day_2}"
         brk = InlineKeyboardMarkup(
             inline_keyboard=[
                 [InlineKeyboardButton(text="Перервати інкубацію",
                                       callback_data="brk")]
             ]
         )
-        await callback.message.answer(
-            f"Дата закладання: {last_row[2]}\n"
-            f"Дата вилупу: {last_row[4]}\n"
-            f"Закладено, шт: {last_row[5] or 'не вказано'}\n\n"
-            f"{message}", reply_markup=brk)
-    elif callback.data == "brk":
-        note_stat[user_id] = 2
-        stop_brk = InlineKeyboardMarkup(
+        zapusck = InlineKeyboardMarkup(
             inline_keyboard=[
-                [InlineKeyboardButton(text="Скасувати переривання",
-                                      callback_data="stop_brk")]
-            ]
-        )
-        await callback.message.answer("Ви впевнені, що хочете перевати інкубацію?\n(Для підтвердження напишіть 'так')", reply_markup=stop_brk)
+                [InlineKeyboardButton(text="Запуск інкубатора",
+                                    callback_data="add_date")]
+            ])
+        if delta_day_2 < 0:
+            message = "Вилуп впродож сьогоднішнього дня!"
+            await callback.message.answer(
+                f"Дата закладання: {last_row[2]}\n"
+                f"Дата вилупу: {last_row[4]}\n"
+                f"Закладено, шт: {last_row[5] or 'не вказано'}\n\n"
+                f"{message}", reply_markup=brk)
+        elif last_row[0] == "*":
+            message = "Активної інкубації не вивлено"
+            await callback.message.answer(message, reply_markup=zapusck)
+        else:
+            message = f"📍{line_1}🥚{line_2}🐣\nДнів до вилупу: {delta_day_2}"
+            await callback.message.answer(
+                f"Дата закладання: {last_row[2]}\n"
+                f"Дата вилупу: {last_row[4]}\n"
+                f"Закладено, шт: {last_row[5] or 'не вказано'}\n\n"
+                f"{message}", reply_markup=brk)
+            
+    elif callback.data == "brk":
+        rows = worksheet_1.get_all_values()
+        last_row = rows[-1]
+        if last_row[0] != "*":
+
+            note_stat[user_id] = 2
+            stop_brk = InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [InlineKeyboardButton(text="Скасувати переривання",
+                                        callback_data="stop_brk")]
+                ]
+            )
+            await callback.message.answer("Ви впевнені, що хочете перевати інкубацію?\n(Для підтвердження напишіть 'так')", reply_markup=stop_brk)
 
     elif callback.data == "stop_brk":
         await callback.message.answer("Все окей, інкубація продовжується")
@@ -344,9 +366,9 @@ async def monitor_sheet():
     prev_data = worksheet_1.get_all_values()
 
     while True:
-        await asyncio.sleep(300)  # чекати 5 хвилин
+        await asyncio.sleep(60)  # чекати 5 хвилин
 
-        current_data = worksheet_1.get_all_values()
+        current_data = worksheet_2.get_all_values()
         if current_data != prev_data:
             logger.info("Таблиця змінилася!")
 
@@ -361,7 +383,7 @@ async def monitor_sheet():
             profit_value = "0"
             expens_value = "0"
 
-            important_column_indexes = [0, 1, 2, 3, 4, 5]
+            important_column_indexes = [11, 12, 13, 14, 15]
 
             try:
                 profit_index = header.index("прибуток")
@@ -407,7 +429,7 @@ async def monitor_sheet():
                         message += f"{name} ({value}грн)\n"
 
             if float(expens_value):
-                message += f"\nВитрачено на:\n{row[6]} ({expens_value}грн)"
+                message += f"\nВитрачено на:\n{row[16]} ({expens_value}грн)"
 
             await bot.send_message(1030040998, message)
 
