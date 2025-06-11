@@ -364,7 +364,7 @@ async def check_periodically(bot: Bot):
                     print("❌ Дата не збігається.")
             else:
                 print("Час перевірки! Але дати немає.")
-        elif now.hour == 14 and now.minute == 16:
+        elif now.hour == 14 and now.minute == 33:
             logger.info("час співпадає")
             if "date" in state_day_start:
                 logger.info("вибір дня")
@@ -405,13 +405,14 @@ async def cycl():
     #st=st
     while True:
         if st[1] == 1:
-            note_stat[1111] = 0
             rows = worksheet_1.get_all_values()
             row = rows[-1]
             #ch = row[6]*100/row[5]
-            for CHAT_ID in users.values():
-                await bot.send_message(CHAT_ID, f"Загалом вилупилося циплаків: {row[6]}\n Відсоток вилупу: {row[7]}%")
-            logger.info(f"перед {st[1]}")
+            if note_stat[1111] == 0:
+                for CHAT_ID in users.values():
+                    await bot.send_message(CHAT_ID, f"Загалом вилупилося циплаків: {row[6]}\n Відсоток вилупу: {row[7]}%")
+                logger.info(f"перед {st[1]}")
+            note_stat[1111] = 0
             break
         else:
             logger.info(st[1])
@@ -428,6 +429,8 @@ async def monitor_sheet():
         await asyncio.sleep(300)  # чекати 5 хвилин
 
         current_data = worksheet_2.get_all_values()
+        row1 = current_data[1]
+        logger.info(row1[12])
         if current_data != prev_data:
             logger.info("Таблиця змінилася!")
 
@@ -487,8 +490,9 @@ async def monitor_sheet():
                     for name, value in filled_columns.items():
                         message += f"{name} ({value}грн)\n"
 
+            prych = row[header.index("тмц")]
             if float(expens_value):
-                message += f"\nВитрачено на:\n{row[16]} ({expens_value}грн)"
+                message += f"\nВитрачено на:\n{prych} ({expens_value}грн)"
 
             await bot.send_message(1030040998, message)
 
