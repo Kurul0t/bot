@@ -275,6 +275,7 @@ async def handle_text(message: Message, bot: Bot):
     elif note_stat[user_id] == 4:
         if message.text.lower() == "так":
             st[1]=1
+            note_stat[1111] = 0
             await cycl()
         elif message.text.lower() == "ні":
             await bot.send_message(user_id, "Наступне оновлення через 2 години")
@@ -364,7 +365,7 @@ async def check_periodically(bot: Bot):
                     print("❌ Дата не збігається.")
             else:
                 print("Час перевірки! Але дати немає.")
-        elif now.hour == 14 and now.minute == 40:
+        elif now.hour == 14 and now.minute == 54:
             logger.info("час співпадає")
             if "date" in state_day_start:
                 logger.info("вибір дня")
@@ -430,7 +431,12 @@ async def monitor_sheet():
 
         current_data = worksheet_2.get_all_values()
         row1 = current_data[1]
-        logger.info(row1[12])
+        logger.info(f"1_12{row1[12]}")
+        row2 = current_data[2]
+        logger.info(f"2_13{row2[13]}")
+        row3 = current_data[3]
+        logger.info(f"3_14{row3[14]}")
+        
         if current_data != prev_data:
             logger.info("Таблиця змінилася!")
 
