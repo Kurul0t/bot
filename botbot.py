@@ -275,7 +275,7 @@ async def handle_text(message: Message, bot: Bot):
     elif note_stat[user_id] == 4:
         if message.text.lower() == "так":
             st[1]=1
-            note_stat[1111] = 0
+            note_stat[1111] = 1
             await cycl()
         elif message.text.lower() == "ні":
             await bot.send_message(user_id, "Наступне оновлення через 2 години")
@@ -365,7 +365,7 @@ async def check_periodically(bot: Bot):
                     print("❌ Дата не збігається.")
             else:
                 print("Час перевірки! Але дати немає.")
-        elif now.hour == 14 and now.minute == 54:
+        elif now.hour == 15 and now.minute == 14:
             logger.info("час співпадає")
             if "date" in state_day_start:
                 logger.info("вибір дня")
@@ -409,7 +409,7 @@ async def cycl():
             rows = worksheet_1.get_all_values()
             row = rows[-1]
             #ch = row[6]*100/row[5]
-            if note_stat[1111] == 0:
+            if note_stat[1111] == 1:
                 for CHAT_ID in users.values():
                     await bot.send_message(CHAT_ID, f"Загалом вилупилося циплаків: {row[6]}\n Відсоток вилупу: {row[7]}%")
                 logger.info(f"перед {st[1]}")
