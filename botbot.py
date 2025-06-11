@@ -183,16 +183,16 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
                 [InlineKeyboardButton(text="Запуск інкубатора",
                                       callback_data="add_date")]
             ])
-        if delta_day_2 < 0:
+        if last_row[0] == "*":
+            message = "Активної інкубації не вивлено"
+            await callback.message.answer(message, reply_markup=zapusck)
+        elif delta_day_2 == 0:
             message = "Вилуп впродож сьогоднішнього дня!"
             await callback.message.answer(
                 f"Дата закладання: {last_row[2]}\n"
                 f"Дата вилупу: {last_row[4]}\n"
                 f"Закладено, шт: {last_row[5] or 'не вказано'}\n\n"
                 f"{message}", reply_markup=brk)
-        elif last_row[0] == "*":
-            message = "Активної інкубації не вивлено"
-            await callback.message.answer(message, reply_markup=zapusck)
         else:
             message = f"📍{line_1}🥚{line_2}🐣\nДнів до вилупу: {delta_day_2}"
             await callback.message.answer(
@@ -364,7 +364,7 @@ async def check_periodically(bot: Bot):
                     print("❌ Дата не збігається.")
             else:
                 print("Час перевірки! Але дати немає.")
-        elif now.hour == 23 and now.minute == 38:
+        elif now.hour == 14 and now.minute == 16:
             logger.info("час співпадає")
             if "date" in state_day_start:
                 logger.info("вибір дня")
