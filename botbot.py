@@ -28,7 +28,7 @@ creds_path = "/etc/secrets/credentials.json"
 
 users = {1: 1030040998, 2: 1995558338}
 
-tabl = "——— ——— ———— ————————\n| день|     t    | Волога|              Дії            |\n ——— ——— ———— ———————— \n|     1   |  37.8 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     2   |  37.8 | 55-65%|  Вкл. переверт. |\n ——— ——— ———— ———————— \n|     3   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     4   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     5   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     6   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     7   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     8   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     9   |  37.7 | 55-65%|     1 Провітр.      |\n ——— ——— ———— ———————— \n|    10  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    11  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    12  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    13  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    14  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    15  |  37.4 | 75-80%|Вимк. переверт.|\n ——— ——— ———— ———————— \n|    16  |  37.4 | 75-80%|                               |\n ——— ——— ———— ———————— \n|    17  |  37.4 | 75-80%|                               |\n ——— ——— ———— ———————— \n ——— ——— ———— ————————"
+tabl = "——— ——— ———— ————————\n| день|     t    | Волога|              Дії            |\n ——— ——— ———— ———————— \n|     1   |  37.8 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     2   |  37.8 | 55-65%|  Вкл. переверт. |\n ——— ——— ———— ———————— \n|     3   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     4   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     5   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     6   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     7   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     8   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     9   |  37.7 | 55-65%|     1 Провітр.      |\n ——— ——— ———— ———————— \n|    10  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    11  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    12  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    13  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    14  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    15  |  37.4 | 75-80%|Вимк. переверт.|\n ——— ——— ———— ———————— \n|    16  |  37.4 | 75-80%|                               |\n ——— ——— ———— ———————— \n|    17  |  37.4 | 75-80%|                               |\n ——— ——— ———— ————————"
 
 # Перевірка наявності файлу
 if not os.path.exists(creds_path):
@@ -73,9 +73,9 @@ KEY_1 = os.environ.get("KEY_1")
 KEY_2 = os.environ.get("KEY_2")
 
 sheet_1 = client.open_by_key(KEY_1)
-worksheet_1 = sheet_1.get_worksheet(0)
 
 sheet_2 = client.open_by_key(KEY_2)
+worksheet_1 = sheet_2.get_worksheet(1)
 worksheet_2 = sheet_2.get_worksheet(0)
 
 
@@ -365,7 +365,7 @@ async def check_periodically(bot: Bot):
                     print("❌ Дата не збігається.")
             else:
                 print("Час перевірки! Але дати немає.")
-        elif now.hour == 15 and now.minute == 14:
+        elif now.hour == 10 and now.minute == 00:
             logger.info("час співпадає")
             if "date" in state_day_start:
                 logger.info("вибір дня")
@@ -387,7 +387,6 @@ async def check_periodically(bot: Bot):
 
                     chus_quail[1] = last_row_index
                     worksheet_1.update_cell(last_row_index, 1, "*")
-                    logger.info("я дебіл")
                     st[1]=0
                     await cycl()
 
@@ -420,7 +419,7 @@ async def cycl():
             note_stat[1111] = 1
             for CHAT_ID in users.values():
                 await bot.send_message(CHAT_ID, "Скільки циплаків вилупилося на даний момент?")
-            await asyncio.sleep(2*30)
+            await asyncio.sleep(2*3600)
 
 
 async def monitor_sheet():
@@ -451,7 +450,7 @@ async def monitor_sheet():
             profit_value = "0"
             expens_value = "0"
 
-            important_column_indexes = [11, 12, 13, 14, 15]
+            important_column_indexes = [12, 13, 14, 15, 16]
 
             try:
                 profit_index = header.index("прибуток")
@@ -496,9 +495,8 @@ async def monitor_sheet():
                     for name, value in filled_columns.items():
                         message += f"{name} ({value}грн)\n"
 
-            prych = row[header.index("тмц")]
             if float(expens_value):
-                message += f"\nВитрачено на:\n{prych} ({expens_value}грн)"
+                message += f"\nВитрачено на:\n{row[17]} ({expens_value}грн)"
 
             await bot.send_message(1030040998, message)
 
