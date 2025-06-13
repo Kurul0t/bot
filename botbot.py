@@ -501,9 +501,9 @@ async def monitor_sheet():
             await bot.send_message(1030040998, message)
 
             """if float(profit_value):
-                bot.send_message(1030040998,"Надішли номер телефону замовника та його Ім'я")
+                bot.send_message(1030040998,"Надішли номер телефону замовника та його Ім'я")"""
 
-            prev_data = current_data"""
+            prev_data = current_data
 
 
 async def main():
