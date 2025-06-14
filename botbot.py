@@ -316,6 +316,7 @@ async def check_periodically(bot: Bot):
                 saved_date = datetime.strptime(
                     state_day_start["date"], "%d.%m.%Y")
                 today_str = now.strftime("%d.%m.%Y")
+                
                 date_plus_8 = (saved_date + timedelta(days=8)
                                ).strftime("%d.%m.%Y")
                 date_plus_14 = (saved_date + timedelta(days=14)
@@ -348,12 +349,17 @@ async def check_periodically(bot: Bot):
                 saved_date = datetime.strptime(
                     state_day_start["date"], "%d.%m.%Y")
                 today_str = now.strftime("%d.%m.%Y")
+                date_plus_2 = (saved_date + timedelta(days=2)
+                               ).strftime("%d.%m.%Y")
                 date_plus_9 = (saved_date + timedelta(days=9)
                                ).strftime("%d.%m.%Y")
                 date_plus_15 = (saved_date + timedelta(days=15)
                                 ).strftime("%d.%m.%Y")
-
-                if date_plus_9 == today_str:
+                if date_plus_2 == today_str:
+                    print("✅ Дата збігається! Сьогодні 2-й день.")
+                    for CHAT_ID in users.values():
+                        await bot.send_message(CHAT_ID, "Сьогодні 2-й день інкубації, потрібно увімкнути перевертання")
+                elif date_plus_9 == today_str:
                     print("✅ Дата збігається! Сьогодні 9-й день.")
                     for CHAT_ID in users.values():
                         await bot.send_message(CHAT_ID, "Сьогодні 9-й день інкубації, потрібно зменшити вологу до 40% та почати провітрювати інкубатор")
@@ -429,12 +435,12 @@ async def monitor_sheet():
         await asyncio.sleep(300)  # чекати 5 хвилин
 
         current_data = worksheet_2.get_all_values()
-        row1 = current_data[1]
+        """row1 = current_data[1]
         logger.info(f"1_12{row1[12]}")
         row2 = current_data[2]
         logger.info(f"2_13{row2[13]}")
         row3 = current_data[3]
-        logger.info(f"3_14{row3[14]}")
+        logger.info(f"3_14{row3[14]}")"""
         
         if current_data != prev_data:
             logger.info("Таблиця змінилася!")
