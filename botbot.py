@@ -355,7 +355,7 @@ async def check_periodically(bot: Bot):
                                ).strftime("%d.%m.%Y")
                 date_plus_15 = (saved_date + timedelta(days=15)
                                 ).strftime("%d.%m.%Y")
-                if date_plus_2 == today_str:
+                if date_plus_2 == today_str and (now.hour == 6 and now.minute == 00):
                     print("✅ Дата збігається! Сьогодні 2-й день.")
                     for CHAT_ID in users.values():
                         await bot.send_message(CHAT_ID, "Сьогодні 2-й день інкубації, потрібно увімкнути перевертання")
