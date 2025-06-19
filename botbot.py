@@ -1,6 +1,6 @@
 import gspread
 from aiogram import Bot, Dispatcher, types, F
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ContentType, KeyboardButton, Message
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ContentType, KeyboardButton, Message, BufferedInputFile
 from aiogram.filters import Command
 from oauth2client.service_account import ServiceAccountCredentials
 import asyncio
@@ -123,13 +123,14 @@ async def start(message: types.Message):
     #image_path = os.path.join(IMAGE_FOLDER, f"{1}.jpg")
     with open("1.jpg", 'rb') as image_file:
             image_data = image_file.read()
-
+    photo = BufferedInputFile(
+            file=image_data, filename=f"{1}.jpg")
     user_id = message.from_user.id
     username = message.from_user.username
     logger.info(
         f"Новий користувач: ID {user_id} Username {username or 'не встановлено'}")
     #await message.answer('Привіт, це бот мініферми "Степова перепілка"', reply_markup=keyboard)
-    await bot.send_photo(user_id, photo=image_data, caption='Привіт, це бот мініферми "Степова перепілка"', reply_markup=keyboard)
+    await bot.send_photo(user_id, photo=photo, caption='Привіт, це бот мініферми "Степова перепілка"', reply_markup=keyboard)
 
 
 async def send_note(user_id: int, message: types.Message, bot: Bot):
