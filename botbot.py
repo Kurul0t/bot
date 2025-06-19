@@ -1,7 +1,9 @@
 import gspread
 from aiogram import Bot, Dispatcher, types, F
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ContentType, KeyboardButton, Message, BufferedInputFile
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ContentType, KeyboardButton, Message, BufferedInputFile, InputMediaPhoto, CallbackQuery
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.filters import Command
+from aiogram.filters.callback_data import CallbackData
 from oauth2client.service_account import ServiceAccountCredentials
 import asyncio
 from datetime import datetime, timedelta, timezone
@@ -94,6 +96,53 @@ KEEPALIVE_BOT_URL = "https://your-keepalive-bot.onrender.com/ping"
 async def handle_ping(message: types.Message):
     pass
 
+class Menu_callback(CallbackData, prefix="menu"):
+    level: int
+    menu_name: str
+    # description: str
+
+
+class Pagination(CallbackData, prefix="pag"):
+    page: int
+
+main_description = {
+    0: "Головне меню",
+    1: "Категорії",
+    2: "Товари",
+    3: "Кошик"
+}
+
+tovar_description = {
+    0: "мариновані Яйця\nОпис\nЦіна\n",
+    1: "маринована перепілка\nОпис\nЦіна\n",
+    2: "Столові Яйця\nОпис\nЦіна\n",
+    3: "Свіже м'ясо\nОпис\nЦіна\n",
+}
+tovar_description11 = {
+    0: "Є в наявності\n",
+    1: "Є в наявності\n",
+    2: "Є в наявності\n",
+    3: "Є в наявності\n",
+}
+tovar_description12 = {
+    0: "Немає в наявності\n",
+    1: "Немає в наявності\n",
+    2: "Немає в наявності\n",
+    3: "Немає в наявності\n",
+}
+tovar_description13 = {
+    0: "Обрано\n",
+    1: "Обрано\n",
+    2: "Обрано\n",
+    3: "Обрано\n",
+}
+tovar_description2 = {
+    0: "                              1 з 4",
+    1: "                              2 з 4",
+    2: "                              3 з 4",
+    3: "                              4 з 4",
+}
+
 
 async def add_date(callback: types.CallbackQuery):
     rows = worksheet_1.get_all_values()
@@ -112,6 +161,9 @@ async def add_date(callback: types.CallbackQuery):
         await callback.answer("❌Помилка❌")
         await callback.message.answer("❌На жаль, немає вільних інкубаторів!")
 
+IMAGE_FOLDER ="images"
+photo={}
+photo2={}
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
@@ -119,18 +171,36 @@ async def start(message: types.Message):
         keyboard=[[KeyboardButton(text="Меню")]],
         resize_keyboard=True
     )
+    t = len(main_description)
+    t2 = len(tovar_description)
 
     #image_path = os.path.join(IMAGE_FOLDER, f"{1}.jpg")
-    with open("1.jpg", 'rb') as image_file:
+
+    for i in range(t):
+        #image_path = os.path.join(IMAGE_FOLDER, f"{i}.jpg")
+        with open(f"images/{i}.jpg", 'rb') as image_file:
             image_data = image_file.read()
-    photo = BufferedInputFile(
-            file=image_data, filename=f"{1}.jpg")
+        # butt=await paginator(page=0)
+        # Використовуємо BufferedInputFile для байтових даних
+        photo[i] = BufferedInputFile(
+            file=image_data, filename=f"{i}.jpg")
+
+    for i in range(t2):
+        #image_path = os.path.join(IMAGE_FOLDER, f"{i}11.jpg")
+        with open(f"images/{i}11.jpg", 'rb') as image_file:
+            image_data = image_file.read()
+        # butt=await paginator(page=0)
+        # Використовуємо BufferedInputFile для байтових даних
+        photo2[i] = BufferedInputFile(
+            file=image_data, filename=f"{i}11.jpg")
+
+    
     user_id = message.from_user.id
     username = message.from_user.username
     logger.info(
         f"Новий користувач: ID {user_id} Username {username or 'не встановлено'}")
-    #await message.answer('Привіт, це бот мініферми "Степова перепілка"', reply_markup=keyboard)
-    await bot.send_photo(user_id, photo=photo, caption='Привіт, це бот мініферми "Степова перепілка"', reply_markup=keyboard)
+    await message.answer('Привіт, це бот мініферми "Степова перепілка"', reply_markup=keyboard)
+    #await bot.send_photo(user_id, photo=photo, caption='Привіт, це бот мініферми "Степова перепілка"', reply_markup=keyboard)
 
 
 async def send_note(user_id: int, message: types.Message, bot: Bot):
@@ -244,11 +314,178 @@ menu = InlineKeyboardMarkup(
     ]
 )
 
+async def menu_setting(level: int):
+    print(level)
+    if level == 0:
+        return await main_menu()
+    elif level == 1:
+        return await catalog_menu(level)
+    # elif level == 2:
+        # descr, rm = await product_menu(level)
+        # return rm
+    elif level == 3:
+        return await cart_menu()
+    elif level == 11:
+        pass
+
+
+async def main_menu():
+    kb = InlineKeyboardBuilder()
+    buttons = {
+        "Товари": "catalog",
+        "Кошик": "cart",
+        "Про нас": "about",
+        "Замовлення": "order"
+
+    }
+
+    for text, menu_name in buttons.items():
+        if menu_name == 'catalog':
+            kb.add(InlineKeyboardButton(text=text, callback_data=Menu_callback(
+                level=1, menu_name=menu_name).pack()))
+        elif menu_name == 'cart':
+            kb.add(InlineKeyboardButton(text=text, callback_data=Menu_callback(
+                level=3, menu_name=menu_name).pack()))
+        elif menu_name == 'about':
+            kb.add(InlineKeyboardButton(text=text, callback_data=Menu_callback(
+                level=11, menu_name=menu_name).pack()))
+        elif menu_name == 'order':
+            kb.add(InlineKeyboardButton(text=text, callback_data=Menu_callback(
+                level=11, menu_name=menu_name).pack()))
+    return kb.adjust(2, 1, 1).as_markup()
+
+
+async def catalog_menu(level: int):
+    kb = InlineKeyboardBuilder()
+    kb1 = {
+        "Назад": "back",
+        "Кошик": "cart",
+        "Продукт": "product",
+        "Товар": "tovar"}
+
+    for text, menu_name in kb1.items():
+        if menu_name == 'back':
+            kb.add(InlineKeyboardButton(text=text, callback_data=Menu_callback(
+                level=level-1, menu_name=menu_name).pack()))
+        elif menu_name == 'cart':
+            kb.add(InlineKeyboardButton(text=text, callback_data=Menu_callback(
+                level=3, menu_name=menu_name).pack()))
+        else:
+            kb.add(InlineKeyboardButton(text=text, callback_data=Pagination(
+                page=0).pack()))
+
+    return kb.adjust(2, 2).as_markup()
+
+
+async def product_menu(level: int, page=0, st=0):
+    kb = InlineKeyboardBuilder()
+    if st == 0:
+        kb2 = {
+            "назад": "back",
+            "Кошик": "cart",
+            "Обрати": "buy",
+            "◀": "b",
+            "▶": "n"}
+    else:
+        kb2 = {
+            "назад": "back",
+            "Кошик": "cart",
+            "Обрано☑": "buyed",
+            "◀": "b",
+            "▶": "n"}
+
+    print("page    ", page)
+    t = len(tovar_description)-1
+    if page > (len(tovar_description)-1):
+        page = t
+    print(page)
+    
+    if st == 0:
+        tov_descr=tovar_description11[page]
+    elif st == 1:
+        tov_descr=tovar_description12[page]
+    elif st == 2:
+        tov_descr=tovar_description13[page]
+
+    descr = tovar_description[page]+tov_descr+tovar_description2[page]
+    print("descr    ", descr)
+    for text, menu_name in kb2.items():
+        if menu_name == 'back':
+            kb.add(InlineKeyboardButton(text=text, callback_data=Menu_callback(
+                level=level-1, menu_name=menu_name).pack()))
+        elif menu_name == 'cart':
+            kb.add(InlineKeyboardButton(text=text, callback_data=Menu_callback(
+                level=3, menu_name=menu_name).pack()))
+        elif menu_name == 'buy':
+            kb.add(InlineKeyboardButton(text=text, callback_data=Menu_callback(
+                level=11, menu_name=menu_name).pack()))
+        elif menu_name == 'b':
+            if page == 0:
+                kb.add(InlineKeyboardButton(text=text, callback_data=Pagination(
+                    page=page).pack()))
+            else:
+                kb.add(InlineKeyboardButton(text=text, callback_data=Pagination(
+                    page=page-1).pack()))
+        elif menu_name == 'n':
+
+            if page <= t:
+                kb.add(InlineKeyboardButton(text=text, callback_data=Pagination(
+                    page=page+1).pack()))
+            else:
+                kb.add(InlineKeyboardButton(text=text, callback_data=Pagination(
+                    page=page).pack()))
+
+    return descr, kb.adjust(2, 1, 2).as_markup()
+
+
+async def cart_menu():
+    kb = InlineKeyboardBuilder()
+    kb3 = {
+        "Видалити": "delet",
+        "-1": "min1",
+        "+1": "plas1",
+        "◀": "b",
+        "▶": "n",
+        "На головну": "main",
+        "Замовити": "toOrder"}
+
+    for text, menu_name in kb3.items():
+        if menu_name == 'main':
+            kb.add(InlineKeyboardButton(text=text, callback_data=Menu_callback(
+                level=0, menu_name=menu_name).pack()))
+        else:
+            kb.add(InlineKeyboardButton(text=text, callback_data=Menu_callback(
+                level=11, menu_name=menu_name).pack()))
+
+    return kb.adjust(3, 2, 2).as_markup()
+
+@dp.callback_query(Menu_callback.filter())
+async def handle_menu_callback(callback: CallbackQuery, callback_data: Menu_callback):
+
+    await callback.answer()
+    rm = await menu_setting(callback_data.level)
+
+    await callback.message.edit_media(media=InputMediaPhoto(media=photo[callback_data.level], caption=main_description[callback_data.level]), reply_markup=rm)
+
+
+@dp.callback_query(Pagination.filter())
+async def handle_menu_callback(callback: CallbackQuery, callback_data: Pagination):
+
+    await callback.answer()
+    descr, rm = await product_menu(2, callback_data.page)
+    if callback_data.page > (len(tovar_description)-1):
+        await callback.message.edit_media(media=InputMediaPhoto(media=photo2[len(tovar_description)-1], caption=descr), reply_markup=rm)
+    else:
+        await callback.message.edit_media(media=InputMediaPhoto(media=photo2[callback_data.page], caption=descr), reply_markup=rm)
 
 @dp.message(F.text.lower() == "меню")
 async def reply_action(message: types.Message, bot: Bot):
     user_id = message.from_user.id
-    await bot.send_message(user_id, "Обери дію:", reply_markup=menu)
+    if user_id==1030040998 or user_id==1995558338:
+        await bot.send_message(user_id, "Обери дію:", reply_markup=menu)
+    else:
+        rm = await main_menu()
+        await bot.send_photo(user_id, photo=photo[0], caption=main_description[0], reply_markup=rm)
 
 cans = InlineKeyboardMarkup(
     inline_keyboard=[
