@@ -781,7 +781,7 @@ async def monitor_sheet():
                 draw = ImageDraw.Draw(img)
 
                 # Шрифт
-                font_path = "B:/test_bot/test_bots/ARIAL.TTF"
+                font_path = "ARIAL.TTF"
                 font_large = ImageFont.truetype(font_path, 24)
                 font_small = ImageFont.truetype(font_path, 20)
                 # font_large = ImageFont.load_default()  # Стандартний шрифт
