@@ -171,9 +171,6 @@ async def start(message: types.Message):
         keyboard=[[KeyboardButton(text="Меню")]],
         resize_keyboard=True
     )
-    
-
-    
     user_id = message.from_user.id
     username = message.from_user.username
     logger.info(
@@ -518,6 +515,7 @@ async def handle_text(message: Message, bot: Bot):
 photo_incubation=None
 
 async def on_startup():
+    global photo_incubation
     print("Програма запущена. Виконання ініціалізації...")
     rows = worksheet_1.get_all_values()
     # user_id = callback.from_user.id
