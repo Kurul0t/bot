@@ -171,28 +171,7 @@ async def start(message: types.Message):
         keyboard=[[KeyboardButton(text="Меню")]],
         resize_keyboard=True
     )
-    t = len(main_description)
-    t2 = len(tovar_description)
-
-    #image_path = os.path.join(IMAGE_FOLDER, f"{1}.jpg")
-
-    for i in range(t):
-        #image_path = os.path.join(IMAGE_FOLDER, f"{i}.jpg")
-        with open(f"images/{i}.jpg", 'rb') as image_file:
-            image_data = image_file.read()
-        # butt=await paginator(page=0)
-        # Використовуємо BufferedInputFile для байтових даних
-        photo[i] = BufferedInputFile(
-            file=image_data, filename=f"{i}.jpg")
-
-    for i in range(t2):
-        #image_path = os.path.join(IMAGE_FOLDER, f"{i}11.jpg")
-        with open(f"images/{i}11.jpg", 'rb') as image_file:
-            image_data = image_file.read()
-        # butt=await paginator(page=0)
-        # Використовуємо BufferedInputFile для байтових даних
-        photo2[i] = BufferedInputFile(
-            file=image_data, filename=f"{i}11.jpg")
+    
 
     
     user_id = message.from_user.id
@@ -295,7 +274,8 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
     elif callback.data == "stop_brk":
         await callback.message.answer("Все окей, інкубація продовжується")
     elif callback.data == "tabl_incub":
-        await callback.message.answer(tabl)
+        photo_inc=photo_incubation
+        await callback.message.answer_photo(photo_inc)
     elif callback.data == "cans_qwiz":
         note_stat[user_id] = 4
         await callback.message.answer("Чи усіх циплаків було пораховано?\n(Для підтвердження/спростування напиши так/ні)")
@@ -535,6 +515,7 @@ async def handle_text(message: Message, bot: Bot):
 
         note_stat[1111] = 0
 
+photo_incubation=None
 
 async def on_startup():
     print("Програма запущена. Виконання ініціалізації...")
@@ -544,6 +525,35 @@ async def on_startup():
         last_row = rows[-1]
         state_day_start["date"] = last_row[2]
         logger.info("Останній запис:", last_row[2])
+
+    t = len(main_description)
+    t2 = len(tovar_description)
+
+    #image_path = os.path.join(IMAGE_FOLDER, f"{1}.jpg")
+
+    for i in range(t):
+        #image_path = os.path.join(IMAGE_FOLDER, f"{i}.jpg")
+        with open(f"images/{i}.jpg", 'rb') as image_file:
+            image_data = image_file.read()
+        # butt=await paginator(page=0)
+        # Використовуємо BufferedInputFile для байтових даних
+        photo[i] = BufferedInputFile(
+            file=image_data, filename=f"{i}.jpg")
+
+    for i in range(t2):
+        #image_path = os.path.join(IMAGE_FOLDER, f"{i}11.jpg")
+        with open(f"images/{i}11.jpg", 'rb') as image_file:
+            image_data = image_file.read()
+        # butt=await paginator(page=0)
+        # Використовуємо BufferedInputFile для байтових даних
+        photo2[i] = BufferedInputFile(
+            file=image_data, filename=f"{i}11.jpg")
+    
+
+    with open(f"images/incubation.jpg", 'rb') as image_file:
+            image_data = image_file.read()
+    photo_incubation = BufferedInputFile(
+            file=image_data, filename=f"incubation.jpg")
 
 
 async def check_periodically(bot: Bot):
