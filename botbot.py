@@ -1,3 +1,5 @@
+import io
+from PIL import Image, ImageDraw, ImageFont
 import gspread
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, ContentType, KeyboardButton, Message, BufferedInputFile, InputMediaPhoto, CallbackQuery
@@ -15,7 +17,7 @@ import logging
 
 note_stat = {}
 chus_quail = {}
-st={}
+st = {}
 UA_TZ = pytz.timezone("Europe/Kyiv")  # Український час
 
 # Налаштування логування для діагностики
@@ -96,6 +98,7 @@ KEEPALIVE_BOT_URL = "https://your-keepalive-bot.onrender.com/ping"
 async def handle_ping(message: types.Message):
     pass
 
+
 class Menu_callback(CallbackData, prefix="menu"):
     level: int
     menu_name: str
@@ -104,6 +107,7 @@ class Menu_callback(CallbackData, prefix="menu"):
 
 class Pagination(CallbackData, prefix="pag"):
     page: int
+
 
 main_description = {
     0: "Головне меню",
@@ -161,9 +165,10 @@ async def add_date(callback: types.CallbackQuery):
         await callback.answer("❌Помилка❌")
         await callback.message.answer("❌На жаль, немає вільних інкубаторів!")
 
-IMAGE_FOLDER ="images"
-photo={}
-photo2={}
+IMAGE_FOLDER = "images"
+photo = {}
+photo2 = {}
+
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
@@ -176,7 +181,7 @@ async def start(message: types.Message):
     logger.info(
         f"Новий користувач: ID {user_id} Username {username or 'не встановлено'}")
     await message.answer('Привіт, це бот мініферми "Степова перепілка"', reply_markup=keyboard)
-    #await bot.send_photo(user_id, photo=photo, caption='Привіт, це бот мініферми "Степова перепілка"', reply_markup=keyboard)
+    # await bot.send_photo(user_id, photo=photo, caption='Привіт, це бот мініферми "Степова перепілка"', reply_markup=keyboard)
 
 
 async def send_note(user_id: int, message: types.Message, bot: Bot):
@@ -271,7 +276,7 @@ async def process_button(callback: types.CallbackQuery, bot: Bot):
     elif callback.data == "stop_brk":
         await callback.message.answer("Все окей, інкубація продовжується")
     elif callback.data == "tabl_incub":
-        photo_inc=photo_incubation
+        photo_inc = photo_incubation
         await callback.message.answer_photo(photo_inc)
     elif callback.data == "cans_qwiz":
         note_stat[user_id] = 4
@@ -290,6 +295,7 @@ menu = InlineKeyboardMarkup(
                               callback_data="tabl_incub")]
     ]
 )
+
 
 async def menu_setting(level: int):
     print(level)
@@ -376,13 +382,13 @@ async def product_menu(level: int, page=0, st=0):
     if page > (len(tovar_description)-1):
         page = t
     print(page)
-    
+
     if st == 0:
-        tov_descr=tovar_description11[page]
+        tov_descr = tovar_description11[page]
     elif st == 1:
-        tov_descr=tovar_description12[page]
+        tov_descr = tovar_description12[page]
     elif st == 2:
-        tov_descr=tovar_description13[page]
+        tov_descr = tovar_description13[page]
 
     descr = tovar_description[page]+tov_descr+tovar_description2[page]
     print("descr    ", descr)
@@ -436,6 +442,7 @@ async def cart_menu():
 
     return kb.adjust(3, 2, 2).as_markup()
 
+
 @dp.callback_query(Menu_callback.filter())
 async def handle_menu_callback(callback: CallbackQuery, callback_data: Menu_callback):
 
@@ -455,10 +462,11 @@ async def handle_menu_callback(callback: CallbackQuery, callback_data: Paginatio
     else:
         await callback.message.edit_media(media=InputMediaPhoto(media=photo2[callback_data.page], caption=descr), reply_markup=rm)
 
+
 @dp.message(F.text.lower() == "меню")
 async def reply_action(message: types.Message, bot: Bot):
     user_id = message.from_user.id
-    if user_id==1030040998 or user_id==1995558338:
+    if user_id == 1030040998 or user_id == 1995558338:
         await bot.send_message(user_id, "Обери дію:", reply_markup=menu)
     else:
         rm = await main_menu()
@@ -495,7 +503,7 @@ async def handle_text(message: Message, bot: Bot):
         note_stat[user_id] = 0
     elif note_stat[user_id] == 4:
         if message.text.lower() == "так":
-            st[1]=1
+            st[1] = 1
             note_stat[1111] = 1
             await cycl()
         elif message.text.lower() == "ні":
@@ -508,11 +516,12 @@ async def handle_text(message: Message, bot: Bot):
         worksheet_1.update_cell(last_row_index, 7, message.text)
         for CHAT_ID in users.values():
             await bot.send_message(CHAT_ID, f"Оновлення кількості вилуплених циплаків: {message.text}")
-            await bot.send_message(CHAT_ID, "Наступне оновлення через 2 години",reply_markup=cans)
+            await bot.send_message(CHAT_ID, "Наступне оновлення через 2 години", reply_markup=cans)
 
         note_stat[1111] = 0
 
-photo_incubation=None
+photo_incubation = None
+
 
 async def on_startup():
     global photo_incubation
@@ -527,10 +536,10 @@ async def on_startup():
     t = len(main_description)
     t2 = len(tovar_description)
 
-    #image_path = os.path.join(IMAGE_FOLDER, f"{1}.jpg")
+    # image_path = os.path.join(IMAGE_FOLDER, f"{1}.jpg")
 
     for i in range(t):
-        #image_path = os.path.join(IMAGE_FOLDER, f"{i}.jpg")
+        # image_path = os.path.join(IMAGE_FOLDER, f"{i}.jpg")
         with open(f"images/{i}.jpg", 'rb') as image_file:
             image_data = image_file.read()
         # butt=await paginator(page=0)
@@ -539,19 +548,18 @@ async def on_startup():
             file=image_data, filename=f"{i}.jpg")
 
     for i in range(t2):
-        #image_path = os.path.join(IMAGE_FOLDER, f"{i}11.jpg")
+        # image_path = os.path.join(IMAGE_FOLDER, f"{i}11.jpg")
         with open(f"images/{i}11.jpg", 'rb') as image_file:
             image_data = image_file.read()
         # butt=await paginator(page=0)
         # Використовуємо BufferedInputFile для байтових даних
         photo2[i] = BufferedInputFile(
             file=image_data, filename=f"{i}11.jpg")
-    
 
     with open(f"images/incubation.jpg", 'rb') as image_file:
-            image_data = image_file.read()
+        image_data = image_file.read()
     photo_incubation = BufferedInputFile(
-            file=image_data, filename=f"incubation.jpg")
+        file=image_data, filename=f"incubation.jpg")
 
 
 async def check_periodically(bot: Bot):
@@ -568,7 +576,7 @@ async def check_periodically(bot: Bot):
                 saved_date = datetime.strptime(
                     state_day_start["date"], "%d.%m.%Y")
                 today_str = now.strftime("%d.%m.%Y")
-                
+
                 date_plus_8 = (saved_date + timedelta(days=8)
                                ).strftime("%d.%m.%Y")
                 date_plus_14 = (saved_date + timedelta(days=14)
@@ -645,7 +653,7 @@ async def check_periodically(bot: Bot):
 
                     chus_quail[1] = last_row_index
                     worksheet_1.update_cell(last_row_index, 1, "*")
-                    st[1]=0
+                    st[1] = 0
                     await cycl()
 
                 else:
@@ -656,16 +664,13 @@ async def check_periodically(bot: Bot):
         await asyncio.sleep(60)
 
 
-
-
-
 async def cycl():
-    #st=st
+    # st=st
     while True:
         if st[1] == 1:
             rows = worksheet_1.get_all_values()
             row = rows[-1]
-            #ch = row[6]*100/row[5]
+            # ch = row[6]*100/row[5]
             if note_stat[1111] == 1:
                 for CHAT_ID in users.values():
                     await bot.send_message(CHAT_ID, f"Загалом вилупилося циплаків: {row[6]}\n Відсоток вилупу: {row[7]}%")
@@ -680,9 +685,6 @@ async def cycl():
             await asyncio.sleep(2*3600)
 
 
-from PIL import Image, ImageDraw, ImageFont
-import io
-
 async def monitor_sheet():
     prev_data = worksheet_2.get_all_values()
 
@@ -696,7 +698,7 @@ async def monitor_sheet():
         logger.info(f"2_13{row2[13]}")
         row3 = current_data[3]
         logger.info(f"3_14{row3[14]}")"""
-        
+
         if current_data != prev_data:
             logger.info("Таблиця змінилася!")
 
@@ -711,7 +713,7 @@ async def monitor_sheet():
             profit_value = "0"
             expens_value = "0"
 
-            important_column_indexes = [12, 13, 14, 15, 16]
+            #important_column_indexes = [12, 13, 14, 15, 16]
 
             try:
                 profit_index = header.index("прибуток")
@@ -739,26 +741,25 @@ async def monitor_sheet():
                 result = profit_sum - expens_sum
 
             # ✅ Перевірка заповнених категорій
-            for idx in important_column_indexes:
+            """for idx in important_column_indexes:
                 if idx < len(row):
                     cell_value = str(row[idx]).strip().replace('\u200b', '')
                     if cell_value:
                         clean_name = header[idx].replace("за ", "").strip()
-                        filled_columns[clean_name] = cell_value
+                        filled_columns[clean_name] = cell_value"""
 
             # 📨 Формування повідомлення
-            #result_line = f"+{result}" if result >= 0 else f"{result}"
-            #message = result_line
+            # result_line = f"+{result}" if result >= 0 else f"{result}"
+            # message = result_line
 
-            if float(profit_value):
-                if filled_columns:
-                    message += "\nПродано:\n"
+            #if float(profit_value):
+            #    if filled_columns:
+            """message += "\nПродано:\n"
                     for name, value in filled_columns.items():
                         message += f"{name} ({value}грн)\n"
-
-            if float(expens_value):
-                message += f"\nВитрачено на:\n{row[17]} ({expens_value}грн)"
-
+"""
+            #if float(expens_value):
+            #    message += f"\nВитрачено на:\n{row[17]} ({expens_value}грн)"
 
             income = f"+{result}" if result >= 0 else f"{result}"
             sales = [
@@ -774,7 +775,7 @@ async def monitor_sheet():
 
             # Генеруємо звіт
 
-            async def generate_farm_report(income, sales_list, expenses_list, balance):
+            def generate_farm_report(income, sales_list, expenses_list, balance):
                 width, height = 400, 447
                 img = Image.new('RGB', (width, height), color='#000000')
                 draw = ImageDraw.Draw(img)
@@ -787,11 +788,13 @@ async def monitor_sheet():
                 # font_small = ImageFont.load_default()
 
                 # y0 = 5
-                draw.rounded_rectangle([5, 5, 395, 55],radius=8, fill='#edf0f2', outline='black')
+                draw.rounded_rectangle(
+                    [5, 5, 395, 55], radius=8, fill='#edf0f2', outline='black')
 
                 # Функція малювання блоків
                 def draw_box(x, y, w, h, text, bg='#c6c5c3', text_color='black', font=None, align='center'):
-                    draw.rounded_rectangle([x, y, x + w, y + h],radius=8, fill=bg)
+                    draw.rounded_rectangle(
+                        [x, y, x + w, y + h], radius=8, fill=bg)
                     bbox = draw.textbbox((0, 0), text, font=font)
                     text_w = bbox[2] - bbox[0]
                     text_h = bbox[3] - bbox[1]
@@ -802,35 +805,40 @@ async def monitor_sheet():
                     else:
                         text_x = x
                     text_y = y + (h - text_h) / 2
-                    draw.text((text_x, text_y), text, fill=text_color, font=font)
+                    draw.text((text_x, text_y), text,
+                              fill=text_color, font=font)
 
                 # Верхній прибуток
                 draw_box(15, 10, 370, 40, f"+{income}грн",
-                        bg="#929292", text_color="lime", font=font_large)
+                         bg="#929292", text_color="lime", font=font_large)
 
                 # Продажі
                 y = 60
                 # draw.rectangle([5, 60, 395, 280], fill='#edf0f2', outline='black')
 
-                draw.rounded_rectangle([5, 60, 395, 275],radius=8, fill='#d1ffc7', outline='black')
+                draw.rounded_rectangle(
+                    [5, 60, 395, 275], radius=8, fill='#d1ffc7', outline='black')
                 row_h = 40
                 for i, (label, price) in enumerate(sales_list):
                     draw_box(15, 70 + i * row_h, 215, row_h - 5,
-                            label, bg="#c6c5c3", font=font_small)
+                             label, bg="#c6c5c3", font=font_small)
                     draw_box(235, 70 + i * row_h, 150, row_h - 5,
-                            f"{price}грн", bg="#c6c5c3", font=font_small)
+                             f"{price}грн", bg="#c6c5c3", font=font_small)
 
                 # Витрати
                 y2 = y + 220
-                draw.rounded_rectangle([5, 280, 395, 380],radius=8, fill='#ff9292', outline='black')
+                draw.rounded_rectangle(
+                    [5, 280, 395, 380], radius=8, fill='#ff9292', outline='black')
                 for i, (label, price) in enumerate(expenses_list):
-                    draw_box(15, 290, 215, 80, label, bg="#c6c5c3", font=font_small)
+                    draw_box(15, 290, 215, 80, label,
+                             bg="#c6c5c3", font=font_small)
                     draw_box(235, 290, 150, 80,
-                            f"{price}грн", bg="#c6c5c3", font=font_small)
+                             f"{price}грн", bg="#c6c5c3", font=font_small)
 
                 # Баланс
                 def draw_box1(x, y, w, h, text, bg='#929292', text_color='black', font=None, align='center'):
-                    draw.rectangle([x, y, x + w, y + h], fill=bg, outline='black')
+                    draw.rectangle([x, y, x + w, y + h],
+                                   fill=bg, outline='black')
                     bbox = draw.textbbox((0, 0), text, font=font)
                     text_w = bbox[2] - bbox[0]
                     text_h = bbox[3] - bbox[1]
@@ -841,14 +849,16 @@ async def monitor_sheet():
                     else:
                         text_x = x
                     text_y = y + (h - text_h) / 2
-                    draw.text((text_x, text_y), text, fill=text_color, font=font)
+                    draw.text((text_x, text_y), text,
+                              fill=text_color, font=font)
                 y3 = y2 + 110
                 y_y = 185
-                draw.rounded_rectangle([5, 385, 395, y3 + 50],radius=8, fill='#dddddd', outline='black')
+                draw.rounded_rectangle(
+                    [5, 385, 395, y3 + 50], radius=8, fill='#dddddd', outline='black')
                 draw_box1(15, y3+2, y_y, 40, "баланс ферми",
-                        bg="#c6c5c3", text_color="black", font=font_small)
+                          bg="#c6c5c3", text_color="black", font=font_small)
                 draw_box1(y_y+15, y3 + 2, y_y, 40, f"{balance}грн",
-                        bg="#929292", text_color="lime", font=font_small)
+                          bg="#929292", text_color="lime", font=font_small)
 
                 # Зберігаємо зображення в пам’яті як байти
                 img_byte_arr = io.BytesIO()
@@ -856,15 +866,14 @@ async def monitor_sheet():
                 img_byte_arr.seek(0)
 
                 # Повертаємо BufferedInputFile для надсилання в Telegram
-                photo_incubation = BufferedInputFile(file=img_byte_arr.getvalue(), filename="incubation.jpg")
+                photo_incubation = BufferedInputFile(
+                    file=img_byte_arr.getvalue(), filename="incubation.jpg")
 
                 return photo_incubation
 
+            pht = generate_farm_report(income, sales, expenses, balance)
 
-            pht=await generate_farm_report(income, sales, expenses, balance)
-
-
-            #await bot.send_message(1030040998, message)
+            # await bot.send_message(1030040998, message)
             await bot.send_photo(chat_id=1030040998, photo=pht)
 
             """if float(profit_value):
