@@ -752,7 +752,7 @@ async def monitor_sheet():
             ]
 
             
-            if row[17] is not None and row[17].strip():
+            if row[17]:
                 text = f"{row[17]}"
                 wrapped = textwrap.wrap(text, width=17, break_long_words=False)
             else:
@@ -783,7 +783,7 @@ async def monitor_sheet():
                 def draw_box(x, y, w, h, text, bg='#c6c5c3', text_color='black', font=None, align='center'):
                     draw.rounded_rectangle(
                         [x, y, x + w, y + h], radius=8, fill=bg,outline='black')
-                    bbox = draw.textbbox((0, 0), str(text), font=font)
+                    bbox = draw.textbbox((0, 0), text, font=font)
                     text_w = bbox[2] - bbox[0]
                     text_h = bbox[3] - bbox[1]
                     if align == 'center':
@@ -793,11 +793,15 @@ async def monitor_sheet():
                     else:
                         text_x = x
                     text_y = y + (h - text_h) / 2
-                    draw.text((text_x, text_y), str(text),
+                    draw.text((text_x, text_y), text,
                               fill=text_color, font=font)
 
                 # Верхній прибуток
-                draw_box(15, 10, 300, 40, f"{income}грн",
+                if result <0:
+                    draw_box(15, 10, 300, 40, f"{income}грн",
+                         bg="#929292", text_color="red", font=font_large)
+                else:
+                    draw_box(15, 10, 300, 40, f"{income}грн",
                          bg="#929292", text_color="green", font=font_large)
 
                 # Продажі
