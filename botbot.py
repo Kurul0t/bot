@@ -874,7 +874,9 @@ async def monitor_sheet():
             pht = generate_farm_report(income, sales, expenses, balance)
 
             # await bot.send_message(1030040998, message)
-            await bot.send_photo(chat_id=1030040998, photo=pht)
+            for CHAT_ID in users.values():
+                await bot.send_photo(chat_id=CHAT_ID, photo=pht)
+
 
             """if float(profit_value):
                 bot.send_message(1030040998,"Надішли номер телефону замовника та його Ім'я")"""
