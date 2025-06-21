@@ -740,26 +740,6 @@ async def monitor_sheet():
 
                 result = profit_sum - expens_sum
 
-            # ✅ Перевірка заповнених категорій
-            """for idx in important_column_indexes:
-                if idx < len(row):
-                    cell_value = str(row[idx]).strip().replace('\u200b', '')
-                    if cell_value:
-                        clean_name = header[idx].replace("за ", "").strip()
-                        filled_columns[clean_name] = cell_value"""
-
-            # 📨 Формування повідомлення
-            # result_line = f"+{result}" if result >= 0 else f"{result}"
-            # message = result_line
-
-            # if float(profit_value):
-            #    if filled_columns:
-            """message += "\nПродано:\n"
-                    for name, value in filled_columns.items():
-                        message += f"{name} ({value}грн)\n"
-"""
-            # if float(expens_value):
-            #    message += f"\nВитрачено на:\n{row[17]} ({expens_value}грн)"
 
             income = f"+{result}" if result >= 0 else f"{result}"
             sales = [
@@ -776,26 +756,25 @@ async def monitor_sheet():
             # Генеруємо звіт
 
             def generate_farm_report(income, sales_list, expenses_list, balance):
-                width, height = 400, 447
+                width, height = 330, 447
                 img = Image.new('RGB', (width, height), color='#000000')
                 draw = ImageDraw.Draw(img)
 
                 # Шрифт
-                font_path = "ARIAL.TTF"
+                font_path = "courier-prime.ttf"
                 font_large = ImageFont.truetype(font_path, 24)
                 font_small = ImageFont.truetype(font_path, 20)
-                # font_large = ImageFont.load_default()  # Стандартний шрифт
-                # font_small = ImageFont.load_default()
 
-                # y0 = 5
+
+
                 draw.rounded_rectangle(
-                    [5, 5, 395, 55], radius=8, fill='#edf0f2', outline='black')
+                    [5, 5, 325, 55], radius=8, fill='#edf0f2', outline='black')
 
                 # Функція малювання блоків
                 def draw_box(x, y, w, h, text, bg='#c6c5c3', text_color='black', font=None, align='center'):
                     draw.rounded_rectangle(
                         [x, y, x + w, y + h], radius=8, fill=bg)
-                    bbox = draw.textbbox((0, 0), text, font=font)
+                    bbox = draw.textbbox((0, 0), text, font=font,outline='black')
                     text_w = bbox[2] - bbox[0]
                     text_h = bbox[3] - bbox[1]
                     if align == 'center':
@@ -809,30 +788,28 @@ async def monitor_sheet():
                               fill=text_color, font=font)
 
                 # Верхній прибуток
-                draw_box(15, 10, 370, 40, f"{income}грн",
+                draw_box(15, 10, 300, 40, f"{income}грн",
                          bg="#929292", text_color="green", font=font_large)
 
                 # Продажі
                 y = 60
-                # draw.rectangle([5, 60, 395, 280], fill='#edf0f2', outline='black')
-
                 draw.rounded_rectangle(
-                    [5, 60, 395, 275], radius=8, fill='#d1ffc7', outline='black')
+                    [5, 60, 325, 275], radius=8, fill='#d1ffc7', outline='black')
                 row_h = 40
                 for i, (label, price) in enumerate(sales_list):
-                    draw_box(15, 70 + i * row_h, 215, row_h - 5,
+                    draw_box(15, 70 + i * row_h, 180, row_h - 5,
                              label, bg="#c6c5c3", font=font_small)
-                    draw_box(235, 70 + i * row_h, 150, row_h - 5,
+                    draw_box(200, 70 + i * row_h, 115, row_h - 5,
                              f"{price}грн", bg="#c6c5c3", font=font_small)
 
                 # Витрати
                 y2 = y + 220
                 draw.rounded_rectangle(
-                    [5, 280, 395, 380], radius=8, fill='#ff9292', outline='black')
+                    [5, 280, 325, 380], radius=8, fill='#ff9292', outline='black')
                 for i, (label, price) in enumerate(expenses_list):
-                    draw_box(15, 290, 215, 80, label,
+                    draw_box(15, 290, 180, 80, label,
                              bg="#c6c5c3", font=font_small)
-                    draw_box(235, 290, 150, 80,
+                    draw_box(235, 290, 115, 80,
                              f"{price}грн", bg="#c6c5c3", font=font_small)
 
                 # Баланс
@@ -852,9 +829,9 @@ async def monitor_sheet():
                     draw.text((text_x, text_y), text,
                               fill=text_color, font=font)
                 y3 = y2 + 110
-                y_y = 185
+                y_y = 150
                 draw.rounded_rectangle(
-                    [5, 385, 395, y3 + 50], radius=8, fill='#dddddd', outline='black')
+                    [5, 385, 325, y3 + 50], radius=8, fill='#dddddd', outline='black')
                 draw_box1(15, y3+2, y_y, 40, "баланс ферми",
                           bg="#c6c5c3", text_color="black", font=font_small)
                 draw_box1(y_y+15, y3 + 2, y_y, 40, f"{balance}грн",
@@ -873,9 +850,9 @@ async def monitor_sheet():
 
             pht = generate_farm_report(income, sales, expenses, balance)
 
-            # await bot.send_message(1030040998, message)
-            for CHAT_ID in users.values():
-                await bot.send_photo(chat_id=CHAT_ID, photo=pht)
+            #await bot.send_message(1030040998, message)
+            #for CHAT_ID in users.values():
+            await bot.send_photo(chat_id=1030040998, photo=pht)
 
 
             """if float(profit_value):
