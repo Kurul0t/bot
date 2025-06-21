@@ -752,9 +752,11 @@ async def monitor_sheet():
             ]
 
             
-
-            text = f"{row[17]}"
-            wrapped = textwrap.wrap(text, width=17, break_long_words=False)
+            if row[17] is not None and row[17].strip():
+                text = f"{row[17]}"
+                wrapped = textwrap.wrap(text, width=17, break_long_words=False)
+            else:
+                wrapped = ""
 
             expenses = [(wrapped if row[17] else "Витрати", expens_value)]
             header2 = current_data[2]
