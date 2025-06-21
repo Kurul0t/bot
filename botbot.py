@@ -713,7 +713,7 @@ async def monitor_sheet():
             profit_value = "0"
             expens_value = "0"
 
-            #important_column_indexes = [12, 13, 14, 15, 16]
+            # important_column_indexes = [12, 13, 14, 15, 16]
 
             try:
                 profit_index = header.index("прибуток")
@@ -722,19 +722,19 @@ async def monitor_sheet():
                 expens_index = header.index("затрати/грн")
                 expens_value = row[expens_index].strip() or "0"
 
-                profit_sum = float(profit_value)
-                expens_sum = float(expens_value)
+                profit_sum = int(profit_value)
+                expens_sum = int(expens_value)
                 result = profit_sum - expens_sum
 
             except (ValueError, IndexError):
                 # Обробка, якщо якісь колонки відсутні або нечислові
                 try:
-                    profit_sum = float(profit_value)
+                    profit_sum = int(profit_value)
                 except ValueError:
                     profit_sum = 0
 
                 try:
-                    expens_sum = float(expens_value)
+                    expens_sum = int(expens_value)
                 except ValueError:
                     expens_sum = 0
 
@@ -752,24 +752,24 @@ async def monitor_sheet():
             # result_line = f"+{result}" if result >= 0 else f"{result}"
             # message = result_line
 
-            #if float(profit_value):
+            # if float(profit_value):
             #    if filled_columns:
             """message += "\nПродано:\n"
                     for name, value in filled_columns.items():
                         message += f"{name} ({value}грн)\n"
 """
-            #if float(expens_value):
+            # if float(expens_value):
             #    message += f"\nВитрачено на:\n{row[17]} ({expens_value}грн)"
 
             income = f"+{result}" if result >= 0 else f"{result}"
             sales = [
-                ("інкубаційні яйця", row[12]),
-                ("столові яйця", row[13]),
-                ("тушки", row[14]),
-                ("жива птиця", row[15]),
-                ("марин. тушки", row[16]),
+                ("інкубаційні яйця", row[12] if row[12] else 0),
+                ("столові яйця", row[13] if row[13] else 0),
+                ("тушки", row[14] if row[14] else 0),
+                ("жива птиця", row[15] if row[15] else 0),
+                ("марин. тушки", row[16] if row[16] else 0),
             ]
-            expenses = [(f"{row[17]}", expens_value)]
+            expenses = [(row[17] if row[17] else "Витрати", expens_value)]
             header2 = current_data[2]
             balance = header2[20]
 
@@ -809,7 +809,7 @@ async def monitor_sheet():
                               fill=text_color, font=font)
 
                 # Верхній прибуток
-                draw_box(15, 10, 370, 40, f"+{income}грн",
+                draw_box(15, 10, 370, 40, f"{income}грн",
                          bg="#929292", text_color="lime", font=font_large)
 
                 # Продажі
