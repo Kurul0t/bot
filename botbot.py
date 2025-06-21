@@ -832,11 +832,11 @@ async def monitor_sheet():
                 y2 = y + 220
                 draw.rounded_rectangle(
                     [5, 280, 325, 380], radius=8, fill='#ff9292', outline='black')
-                for i, (label, price) in enumerate(expenses_list):
-                    draw_box(15, 290, 180, 80, label,
+                
+                draw_box(15, 290, 180, 80, expenses_list,
                              bg="#c6c5c3", font=font_small)
-                    draw_box(200, 290, 115, 80,
-                             f"{price}грн", bg="#c6c5c3", font=font_small)
+                draw_box(200, 290, 115, 80,
+                             f"{row[18]}грн", bg="#c6c5c3", font=font_small)
 
                 # Баланс
                 def draw_box1(x, y, w, h, text, bg='#929292', text_color='black', font=None, align='center'):
