@@ -780,10 +780,10 @@ async def monitor_sheet():
                     [5, 5, 325, 55], radius=8, fill='#edf0f2', outline='black')
 
                 # Функція малювання блоків
-                def draw_box(x, y, w, h, text, bg='#c6c5c3', text_color='black', font=None, align='center',outline='black'):
+                def draw_box(x, y, w, h, text, bg='#c6c5c3', text_color='black', font=None, align='center'):
                     draw.rounded_rectangle(
-                        [x, y, x + w, y + h], radius=8, fill=bg)
-                    bbox = draw.textbbox((0, 0), text, font=font)
+                        [x, y, x + w, y + h], radius=8, fill=bg,outline='black')
+                    bbox = draw.textbbox((0, 0), str(text), font=font)
                     text_w = bbox[2] - bbox[0]
                     text_h = bbox[3] - bbox[1]
                     if align == 'center':
@@ -793,7 +793,7 @@ async def monitor_sheet():
                     else:
                         text_x = x
                     text_y = y + (h - text_h) / 2
-                    draw.text((text_x, text_y), text,
+                    draw.text((text_x, text_y), str(text),
                               fill=text_color, font=font)
 
                 # Верхній прибуток
