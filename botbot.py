@@ -810,7 +810,7 @@ async def monitor_sheet():
 
                 # Верхній прибуток
                 draw_box(15, 10, 370, 40, f"{income}грн",
-                         bg="#929292", text_color="lime", font=font_large)
+                         bg="#929292", text_color="green", font=font_large)
 
                 # Продажі
                 y = 60
@@ -858,7 +858,7 @@ async def monitor_sheet():
                 draw_box1(15, y3+2, y_y, 40, "баланс ферми",
                           bg="#c6c5c3", text_color="black", font=font_small)
                 draw_box1(y_y+15, y3 + 2, y_y, 40, f"{balance}грн",
-                          bg="#929292", text_color="lime", font=font_small)
+                          bg="#929292", text_color="green", font=font_small)
 
                 # Зберігаємо зображення в пам’яті як байти
                 img_byte_arr = io.BytesIO()
