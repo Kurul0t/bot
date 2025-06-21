@@ -14,6 +14,7 @@ import json
 import pytz
 from aiogram.client.bot import DefaultBotProperties
 import logging
+import textwrap
 
 note_stat = {}
 chus_quail = {}
@@ -749,7 +750,13 @@ async def monitor_sheet():
                 ("жива птиця", row[15] if row[15] else 0),
                 ("марин. тушки", row[16] if row[16] else 0),
             ]
-            expenses = [(row[17] if row[17] else "Витрати", expens_value)]
+
+            
+
+            text = f"{row[17]}"
+            wrapped = textwrap.wrap(text, width=17, break_long_words=False)
+
+            expenses = [(wrapped if row[17] else "Витрати", expens_value)]
             header2 = current_data[2]
             balance = header2[20]
 
@@ -762,8 +769,8 @@ async def monitor_sheet():
 
                 # Шрифт
                 font_path = "courier-prime.ttf"
-                font_large = ImageFont.truetype(font_path, 24)
-                font_small = ImageFont.truetype(font_path, 20)
+                font_large = ImageFont.truetype(font_path, 20)
+                font_small = ImageFont.truetype(font_path, 16)
 
 
 
@@ -809,7 +816,7 @@ async def monitor_sheet():
                 for i, (label, price) in enumerate(expenses_list):
                     draw_box(15, 290, 180, 80, label,
                              bg="#c6c5c3", font=font_small)
-                    draw_box(235, 290, 115, 80,
+                    draw_box(200, 290, 115, 80,
                              f"{price}грн", bg="#c6c5c3", font=font_small)
 
                 # Баланс
