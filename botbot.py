@@ -33,7 +33,6 @@ creds_path = "/etc/secrets/credentials.json"
 
 users = {1: 1030040998, 2: 1995558338}
 
-tabl = "——— ——— ———— ————————\n| день|     t    | Волога|              Дії            |\n ——— ——— ———— ———————— \n|     1   |  37.8 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     2   |  37.8 | 55-65%|  Вкл. переверт. |\n ——— ——— ———— ———————— \n|     3   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     4   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     5   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     6   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     7   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     8   |  37.7 | 55-65%|                               |\n ——— ——— ———— ———————— \n|     9   |  37.7 | 55-65%|     1 Провітр.      |\n ——— ——— ———— ———————— \n|    10  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    11  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    12  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    13  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    14  |  37.7 |    40%   |     2 Провітр.      |\n ——— ——— ———— ———————— \n|    15  |  37.4 | 75-80%|Вимк. переверт.|\n ——— ——— ———— ———————— \n|    16  |  37.4 | 75-80%|                               |\n ——— ——— ———— ———————— \n|    17  |  37.4 | 75-80%|                               |\n ——— ——— ———— ————————"
 
 # Перевірка наявності файлу
 if not os.path.exists(creds_path):
@@ -108,6 +107,11 @@ class Menu_callback(CallbackData, prefix="menu"):
 
 class Pagination(CallbackData, prefix="pag"):
     page: int
+
+
+class Buy_pag(CallbackData, prefix="pagin"):
+    page: int
+    count: int
 
 
 main_description = {
@@ -363,20 +367,13 @@ async def catalog_menu(level: int):
 
 async def product_menu(level: int, page=0, st=0):
     kb = InlineKeyboardBuilder()
-    if st == 0:
-        kb2 = {
-            "назад": "back",
-            "Кошик": "cart",
-            "Обрати": "buy",
-            "◀": "b",
-            "▶": "n"}
-    else:
-        kb2 = {
-            "назад": "back",
-            "Кошик": "cart",
-            "Обрано☑": "buyed",
-            "◀": "b",
-            "▶": "n"}
+
+    kb2 = {
+        "назад": "back",
+        "Кошик": "cart",
+        "Обрати": "buy",
+        "◀": "b",
+        "▶": "n"}
 
     print("page    ", page)
     t = len(tovar_description)-1
@@ -401,8 +398,8 @@ async def product_menu(level: int, page=0, st=0):
             kb.add(InlineKeyboardButton(text=text, callback_data=Menu_callback(
                 level=3, menu_name=menu_name).pack()))
         elif menu_name == 'buy':
-            kb.add(InlineKeyboardButton(text=text, callback_data=Menu_callback(
-                level=11, menu_name=menu_name).pack()))
+            kb.add(InlineKeyboardButton(text=text, callback_data=Buy_pag(
+                count=0).pack()))
         elif menu_name == 'b':
             if page == 0:
                 kb.add(InlineKeyboardButton(text=text, callback_data=Pagination(
@@ -464,10 +461,16 @@ async def handle_menu_callback(callback: CallbackQuery, callback_data: Paginatio
         await callback.message.edit_media(media=InputMediaPhoto(media=photo2[callback_data.page], caption=descr), reply_markup=rm)
 
 
+@dp.callback_query(Buy_pag.filter())
+async def handle_menu_callback(callback: CallbackQuery, callback_data: Buy_pag):
+    await callback.answer()
+
+
 @dp.message(F.text.lower() == "меню")
 async def reply_action(message: types.Message, bot: Bot):
     user_id = message.from_user.id
-    if user_id == 1030040998 or user_id == 1995558338:
+    # user_id == 1030040998 or
+    if user_id == 1995558338:
         await bot.send_message(user_id, "Обери дію:", reply_markup=menu)
     else:
         rm = await main_menu()
@@ -741,7 +744,6 @@ async def monitor_sheet():
 
                 result = profit_sum - expens_sum
 
-
             income = f"+{result}" if result >= 0 else f"{result}"
             sales = [
                 ("інкубаційні яйця", row[12] if row[12] else 0),
@@ -751,7 +753,6 @@ async def monitor_sheet():
                 ("марин. тушки", row[16] if row[16] else 0),
             ]
 
-            
             """if row[17] is not None:
                 text = f"{row[17]}"
                 wrapped = textwrap.wrap(text, width=17, break_long_words=False)
@@ -765,9 +766,12 @@ async def monitor_sheet():
             if text:
                 wrapped_lines = textwrap.wrap(
                     text,
-                    width=17,# ширина рядка в символах
+                    width=17,  # ширина рядка в символах
                     break_long_words=False
                 )
+
+                if len(wrapped_lines) > 4:
+                    wrapped_lines = ["Витрати"]
             else:
                 wrapped_lines = ["Витрати"]
 
@@ -787,15 +791,13 @@ async def monitor_sheet():
                 font_large = ImageFont.truetype(font_path, 20)
                 font_small = ImageFont.truetype(font_path, 16)
 
-
-
                 draw.rounded_rectangle(
                     [5, 5, 325, 55], radius=8, fill='#edf0f2', outline='black')
 
                 # Функція малювання блоків
                 def draw_box(x, y, w, h, text, bg='#c6c5c3', text_color='black', font=None, align='center'):
                     draw.rounded_rectangle(
-                        [x, y, x + w, y + h], radius=8, fill=bg,outline='black')
+                        [x, y, x + w, y + h], radius=8, fill=bg, outline='black')
                     bbox = draw.textbbox((0, 0), text, font=font)
                     text_w = bbox[2] - bbox[0]
                     text_h = bbox[3] - bbox[1]
@@ -810,12 +812,12 @@ async def monitor_sheet():
                               fill=text_color, font=font)
 
                 # Верхній прибуток
-                if result <0:
+                if result < 0:
                     draw_box(15, 10, 300, 40, f"{income}грн",
-                         bg="#929292", text_color="red", font=font_large)
+                             bg="#929292", text_color="red", font=font_large)
                 else:
                     draw_box(15, 10, 300, 40, f"{income}грн",
-                         bg="#929292", text_color="green", font=font_large)
+                             bg="#929292", text_color="green", font=font_large)
 
                 # Продажі
                 y = 60
@@ -832,11 +834,11 @@ async def monitor_sheet():
                 y2 = y + 220
                 draw.rounded_rectangle(
                     [5, 280, 325, 380], radius=8, fill='#ff9292', outline='black')
-                
+
                 draw_box(15, 290, 180, 80, expenses_list,
-                             bg="#c6c5c3", font=font_small)
+                         bg="#c6c5c3", font=font_small)
                 draw_box(200, 290, 115, 80,
-                             f"{row[18]}грн", bg="#c6c5c3", font=font_small)
+                         f"{row[18]}грн", bg="#c6c5c3", font=font_small)
 
                 # Баланс
                 def draw_box1(x, y, w, h, text, bg='#929292', text_color='black', font=None, align='center'):
@@ -876,10 +878,9 @@ async def monitor_sheet():
 
             pht = generate_farm_report(income, sales, expenses, balance)
 
-            #await bot.send_message(1030040998, message)
-            #for CHAT_ID in users.values():
-            await bot.send_photo(chat_id=1030040998, photo=pht)
-
+            # await bot.send_message(1030040998, message)
+            for CHAT_ID in users.values():
+                await bot.send_photo(chat_id=CHAT_ID, photo=pht)
 
             """if float(profit_value):
                 bot.send_message(1030040998,"Надішли номер телефону замовника та його Ім'я")"""
